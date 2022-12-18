@@ -1,0 +1,31 @@
+services:
+  db:
+    container_name: "db"
+    build: 
+      context: ./docker/db
+      dockerfile: Dockerfile
+    networks:
+      - backend
+  api:
+    container_name: "api"
+    volumes:
+      -./api:/workspace/app:cached
+      -./scripts:/workspace/scripts:cached
+    build: 
+      context: ./docker/api
+      dockerfile : Dockerfile
+    working_dir: /workspace/scripts
+    command: bash -c "./run.sh"
+    networks:
+      - backend
+networks:
+  default:
+    external:
+      name: bridge
+  backend:
+    name: backend
+    driver: bridge
+    external: true
+  
+
+    
