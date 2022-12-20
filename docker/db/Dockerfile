@@ -1,8 +1,8 @@
-FROM mysql
+FROM mysql:8.0-debian
 
-RUN apt update \
-    && apt install --no-install-recommends -y tzdata \
-    && apt clean
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y tzdata \
+    && apt-get clean
 
 ADD ./conf.d/ /etc/mysql/conf.d/
 

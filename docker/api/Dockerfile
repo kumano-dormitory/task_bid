@@ -1,10 +1,10 @@
 FROM python:3.11.1-bullseye
 
-RUN apt update \
-    && apt install -y default-mysql-client \
+RUN apt-get update \
+    && apt-get install -y default-mysql-client \
     && apt-get -y install gcc libmariadb-dev \
-    && apt install --no-install-recommends -y tzdata \
-    && apt clean
+    && apt-get install --no-install-recommends -y tzdata \
+    && apt-get clean
 
 WORKDIR /api
 
