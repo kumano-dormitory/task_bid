@@ -1,4 +1,6 @@
 mysqlclient
-sqlalchemy
+SQLAlchemy
+sqlalchemy_utils
 uvicorn
 fastapi
+alembic
