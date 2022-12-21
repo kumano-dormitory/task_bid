@@ -1,49 +1,55 @@
-version: "3.3"
+version: "3.7"
 
 services:
+  api:
+    image: "fastapi_starter:1.0.0"
+    container_name: "fastapi_starter"
+    depends_on:
+      - db
+    build:
+      context: ./docker/api
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8000"
+    volumes:
+      - ./app:/usr/src/app/app:cached
+      - ./db:/usr/src/app/db:cached
+      - ./scripts:/usr/src/app/scripts:cached
+    working_dir: /usr/src/app/scripts
+    command: bash -c "./run.sh"
+    networks:
+      - fastapi_network
+    environment:
+      APP_ENV: "development"
+      TZ: "Asia/Tokyo"
+    env_file:
+      - .env.development
   db:
-    container_name: "db"
-    build: ./docker/mysql
+    image: "fastapi_starter_db:0.1.0"
+    container_name: "fastapi_starter_db"
+    build:
+      context: ./docker/db
+      dockerfile: Dockerfile
     restart: always
     tty: true
+    expose:
+      - "3306"
+    volumes:
+      - ./docker/db/conf.d:/etc/mysql/conf.d:cached
+      - ./log/db:/var/log/mysql:cached
+    networks:
+      - fastapi_network
     environment:
-      MYSQL_DATABASE: sample_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
-      TZ: 'Asia/Tokyo'
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./docker/mysql/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf
-    networks:
-      - backend
-
-  app:
-    container_name: "app"
-    build: ./docker/app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - "db"
-    command: ["./conf/wait-for-it.sh", "db:3306", "--", "uvicorn", "main:app", "--reload", "--port=8000", "--host=0.0.0.0"]
-    volumes:
-      - ./app:/usr/src/server
-    networks:
-      - frontend
-      - backend
+      APP_ENV: "development"
+      TZ: "Asia/Tokyo"
+    env_file:
+      - .env.development
 
 networks:
-  frontend:
+  default:
+    external:
+      name: bridge
+  fastapi_network:
+    name: fastapi_network
     driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.10.0/24
-  backend:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.20.0/24
+    external: true

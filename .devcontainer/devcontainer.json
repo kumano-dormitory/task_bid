@@ -2,7 +2,7 @@
 	"name": "api",
 	"dockerComposeFile": [
 		"../docker-compose.yml",
-		"../docker-compose.local.yml"
+		"docker-compose.yml"
 	],
 	"settings": {
 		"python.linting.enabled": true,
@@ -33,5 +33,5 @@
 		"njpwerner.autodocstring"
 	],
 	"service": "api",
-	"workspaceFolder": "/workspace"
+	"workspaceFolder": "/usr"
 }
