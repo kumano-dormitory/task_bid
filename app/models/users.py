@@ -1,5 +1,5 @@
 from sqlalchemy import Column,String,Enum,Table,ForeignKey,Integer
-from database import Base
+from conf.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 from uuid import uuid4
@@ -52,7 +52,8 @@ class User(Base, TimestampMixin):
     password=Column(String)
     block=Column(Enum(Block))
     room_number=Column(String(10))
-    achivement=relationship("Achivement",secondary=achivement_table)
+    achivement=relationship("Achivement",secondary=achivement_table,back_populates="user")
     experience=relationship("Task",secondary=experience_table,back_populates="user")
-    slots=relationship("Slot",secondary=slots_table,back_populates="users")
+    slots=relationship("Slot",secondary=slots_table,back_populates="user")
     point=Column(Integer,default=0)
+    bid=relationship("Bid",back_populates="user")
