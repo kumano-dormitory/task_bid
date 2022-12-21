@@ -2,6 +2,9 @@ FROM python:3.11-alpine
 
 WORKDIR /usr/src/server
 
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONBUFFERED 1
+
 ADD requirements.txt .
 
 RUN apk add --no-cache build-base bash mariadb-client mariadb-connector-c-dev
