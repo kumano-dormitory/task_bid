@@ -26,11 +26,11 @@ class Slot(Base,TimestampMixin):
     start_time=Column(DateTime)
     end_time=Column(DateTime)
     assignees=relationship("User",secondary=slots_table,back_populates="slots")
-    creater_id=Column(String,ForeignKey("user.id"))
+    creater_id=Column(UUIDType(binary=False),ForeignKey("user.id"))
     creater=relationship("User",back_populates="create_slot")
-    task_id=Column(String,ForeignKey("task.id"))
+    task_id=Column(UUIDType(binary=False),ForeignKey("task.id"))
     task=relationship("Task",back_populates="slot",uselist=False)
-    bid_id=Column(String,ForeignKey("bid.id"))
+    bid_id=Column(UUIDType(binary=False),ForeignKey("bid.id"))
     bid=relationship("Bid",back_populates="slot")
     
 class Task(Base,TimestampMixin):
@@ -40,7 +40,7 @@ class Task(Base,TimestampMixin):
     detail=Column(Text(400))
     slot=relationship("Slot",back_populates="task")
     expert=relationship("User" ,secondary=experience_table,back_populates="exp_task")
-    creater_id=Column(String,ForeignKey("user.id"))
+    creater_id=Column(UUIDType(binary=False),ForeignKey("user.id"))
     creater=relationship("User",back_populates="create_task")
     authority=relationship("Authority",secondary=authority_table,back_populates="task")
     tag=relationship("TaskTag",secondary=tag_table,back_populates="task")

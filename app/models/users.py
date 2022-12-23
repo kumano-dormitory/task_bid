@@ -42,7 +42,7 @@ class User(Base, TimestampMixin):
     __tablename__="user"
     id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
     name=Column(String(20))
-    password=Column(String)
+    password=Column(String(40))
     block=Column(Enum(Block))
     room_number=Column(String(10))
     achivement=relationship("Achivement",secondary=achivement_table,back_populates="user")

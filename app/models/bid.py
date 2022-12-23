@@ -19,7 +19,7 @@ class Bid(Base,TimestampMixin):
     second_point=Column(Integer,default=0)
     buyout_point=Column(Integer,default=0)
     is_complete=Column(Boolean,default=False)
-    lowest_user_id=Column(String,ForeignKey("user.id"))
+    lowest_user_id=Column(UUIDType(binary=False),ForeignKey("user.id"))
     lowest_user=relationship("User",back_populates="bid")
     
     
