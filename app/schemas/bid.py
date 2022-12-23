@@ -1,11 +1,11 @@
-from typing import List, Optional
+from typing import List, Optional,TYPE_CHECKING
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
-from schemas.user import User
 from schemas.authority import Authority
 from schemas.slot import Slot
-
+if TYPE_CHECKING:
+    from schemas.users import User
 
 class Bid(BaseModel):
     id:UUID
@@ -19,4 +19,4 @@ class Bid(BaseModel):
     buyout_point:int
     is_complete:bool
     lowest_user_id:str
-    lowest_user:User
+    lowest_user:"User"

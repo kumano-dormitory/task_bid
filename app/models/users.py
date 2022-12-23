@@ -3,7 +3,7 @@ from conf.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 from uuid import uuid4
-from timestamp import TimestampMixin
+from .timestamp import TimestampMixin
 import enum
 
 class Block(str,enum.Enum):
@@ -38,13 +38,6 @@ slots_table=Table(
     Column("slot",ForeignKey("slot.id"),primary_key=True),
 )
 
-roles_table=Table(
-    "roles_table",
-    Base.metadata,
-    Column("user",ForeignKey("user.id"),primary_key=True),
-    Column("role",ForeignKey("role.id"),primary_key=True),
-)
-
 class User(Base, TimestampMixin):
     __tablename__="user"
     id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
@@ -53,7 +46,9 @@ class User(Base, TimestampMixin):
     block=Column(Enum(Block))
     room_number=Column(String(10))
     achivement=relationship("Achivement",secondary=achivement_table,back_populates="user")
-    experience=relationship("Task",secondary=experience_table,back_populates="user")
-    slots=relationship("Slot",secondary=slots_table,back_populates="user")
+    exp_task=relationship("Task",secondary=experience_table,back_populates="expert")
+    slots=relationship("Slot",secondary=slots_table,back_populates="assignees")
+    create_slot=relationship("Slot",back_populates="creater")
+    create_task=relationship("Task",back_populates="creater")
     point=Column(Integer,default=0)
-    bid=relationship("Bid",back_populates="user")
+    bid=relationship("Bid",back_populates="lowest_user")

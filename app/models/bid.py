@@ -3,8 +3,8 @@ from sqlalchemy.orm import relationship
 from conf.database import Base
 from sqlalchemy_utils import UUIDType
 from uuid import uuid4
-from timestamp import TimestampMixin
-from users import slots_table
+from .timestamp import TimestampMixin
+from .users import slots_table
 
 
 class Bid(Base,TimestampMixin):
