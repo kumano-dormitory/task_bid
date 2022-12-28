@@ -1,22 +1,27 @@
-from typing import List, Optional,TYPE_CHECKING
+from typing import List,TYPE_CHECKING
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
-from schemas.authority import Authority
 if TYPE_CHECKING:
+    from schemas.task import Task
     from schemas.users import User
-
-class Task(BaseModel):
-    __tablename__="task"
-    id:UUID
+    from schemas.bid import Bid
+    
+class SlotBase(BaseModel):
     name:str
-    detail:str
-    authority:List[Authority]
+    start_time:datetime
+    end_time:datetime
+    creater:"User"
+    task:"Task"
+    bid:"Bid"
     
 class Slot(BaseModel):
     id:UUID
     name:str
     start_time:datetime
     end_time:datetime
+    creater_id: UUID
+    task_id:UUID
+    bid_id:UUID
     assignees:List["User"]
-    task:List[Task]
+    task:List["Task"]

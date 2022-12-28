@@ -1,5 +1,5 @@
-from sqlalchemy import Column,String,Enum,Table,ForeignKey,Integer
-from database import Base
+from sqlalchemy import Column,String,Enum,Table,ForeignKey,Integer,Boolean
+from app.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 from uuid import uuid4
@@ -20,8 +20,8 @@ class Block(str,enum.Enum):
 achivement_table=Table(
     "achivement_table",
     Base.metadata,
-    Column("user",ForeignKey("user.id"),primary_key=True),
-    Column("achivement",ForeignKey("achivement.id"),primary_key=True),
+    Column("user",ForeignKey("user.id")),
+    Column("achivement",ForeignKey("achivement.id")),
 )
 
 experience_table=Table(
@@ -42,7 +42,7 @@ class User(Base, TimestampMixin):
     __tablename__="user"
     id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
     name=Column(String(20))
-    password=Column(String(40))
+    password=Column(String(400))
     block=Column(Enum(Block))
     room_number=Column(String(10))
     achivement=relationship("Achivement",secondary=achivement_table,back_populates="user")
@@ -52,3 +52,4 @@ class User(Base, TimestampMixin):
     create_task=relationship("Task",back_populates="creater")
     point=Column(Integer,default=0)
     bid=relationship("Bid",back_populates="lowest_user")
+    is_active=Column(Boolean,default=True)

@@ -3,15 +3,16 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 if TYPE_CHECKING:
-    from schemas.users import User
+    from schemas.task import Task
 
-class AchivementBase(BaseModel):
-    term:int
+
+class TaskBase(BaseModel):
     name:str
-    
-class Achivement(BaseModel):
+    task:List["Task"]
+
+
+class TaskTag(BaseModel):
     id:UUID
-    user:List["User"]
     class Config:
         orm_mode=True
     

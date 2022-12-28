@@ -1,54 +1,56 @@
 version: "3.7"
 
 services:
-  api:
-    image: "fastapi_starter:1.0.0"
-    container_name: "fastapi_starter"
+  test:
+    image: "pytest"
+    container_name: "pytest"
     depends_on:
-      - db
+      - test-db
     build:
-      context: ./docker/api
+      context: ./docker/test
       dockerfile: Dockerfile
+    tty: true
     ports:
-      - "8888:8000"
+      - "8100:8100"
     volumes:
       - ./app:/usr/src/app/app:cached
-      - ./db:/usr/src/app/db:cached
       - ./scripts:/usr/src/app/scripts:cached
+      - ./tests:/usr/src/app/tests:cached
     working_dir: /usr/src/app/scripts
-    command: bash -c "./run.sh"
+    command: bash -c "./test.sh"
     networks:
-      - fastapi_network
+      - fastapi_test_network
     environment:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
     env_file:
-      - .env.development
-  db:
-    image: "fastapi_starter_db:0.1.0"
-    container_name: "fastapi_starter_db"
+      - .env.test
+  test-db:
+    image: "fastapi_starter_test-db:0.1.0"
+    container_name: "fastapi_starter_test-db"
     build:
-      context: ./docker/db
+      context: ./docker/test-db
       dockerfile: Dockerfile
     restart: always
     tty: true
     expose:
       - "3306"
     volumes:
-      - ./docker/db/conf.d:/etc/mysql/conf.d:cached
+      - ./docker/test-db/conf.d:/etc/mysql/conf.d:cached
       - ./log/db:/var/log/mysql:cached
     networks:
-      - fastapi_network
+      - fastapi_test_network
     environment:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
     env_file:
-      - .env.development
+      - .env.test
 networks:
   default:
     external:
       name: bridge
-  fastapi_network:
-    name: fastapi_network
+  fastapi_test_network:
+    name: fastapi_test_network
     driver: bridge
     external: true
+

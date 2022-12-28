@@ -3,7 +3,9 @@ SQLAlchemy
 sqlalchemy_utils
 uvicorn
 fastapi
-alembic
+requests
+pytest
+httpx
 python-jose
 passlib
 python-multipart

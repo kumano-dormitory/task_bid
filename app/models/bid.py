@@ -1,6 +1,6 @@
 from sqlalchemy import Column,String,Boolean, Table,ForeignKey,DateTime,Integer
 from sqlalchemy.orm import relationship
-from database import Base
+from app.database import Base
 from sqlalchemy_utils import UUIDType
 from uuid import uuid4
 from .timestamp import TimestampMixin

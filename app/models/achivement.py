@@ -1,5 +1,5 @@
 from sqlalchemy import Column,String,Integer
-from database import Base
+from app.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 from uuid import uuid4

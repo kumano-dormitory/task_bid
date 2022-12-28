@@ -1,8 +1,8 @@
-import cruds.user as crud
+import app.cruds.user as crud
 from fastapi import APIRouter,Depends
-from database import get_db
+from app.database import get_db
 from sqlalchemy.orm import Session
-from schemas.users import UserBase
+from app.schemas.users import UserBase
 router=APIRouter()
 
 @router.get("/")

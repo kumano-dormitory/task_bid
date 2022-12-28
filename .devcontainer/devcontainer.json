@@ -1,12 +1,12 @@
 {
 	"dockerComposeFile": [
-		"../docker-compose.yml","docker-compose.yml"
+		"../docker-compose-test.yml","docker-compose-test.yml"
 	],
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 		"njpwerner.autodocstring"
 	],
-	"service": "api",
+	"service": "test",
 	"workspaceFolder": "/usr/src/app"
 }

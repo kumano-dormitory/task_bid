@@ -1,4 +1,4 @@
-from database import Base
+from app.database import Base
 from .achivement import Achivement
 from .authority import Authority
 from .bid import Bid
