@@ -1,14 +1,11 @@
-from typing import List, Optional,TYPE_CHECKING
+from typing import Dict
 from uuid import UUID
-from datetime import datetime
 from pydantic import BaseModel
-if TYPE_CHECKING:
-    from schemas.task import Task
 
 
-class TaskBase(BaseModel):
+class TaskTagBase(BaseModel):
     name:str
-    task:List["Task"]
+    task:list[Dict]=[]
 
 
 class TaskTag(BaseModel):

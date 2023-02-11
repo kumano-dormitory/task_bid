@@ -1,9 +1,8 @@
-from typing import List, Optional,TYPE_CHECKING
+from typing import List, Dict
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
-if TYPE_CHECKING:
-    from schemas.users import User
+
 
 class AchivementBase(BaseModel):
     term:int
@@ -11,7 +10,7 @@ class AchivementBase(BaseModel):
     
 class Achivement(BaseModel):
     id:UUID
-    user:List["User"]
+    user:List[Dict]
     class Config:
         orm_mode=True
     

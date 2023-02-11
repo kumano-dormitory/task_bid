@@ -31,6 +31,7 @@ Base.query = SessionLocal.query_property()
 
 # Dependency Injection用
 def get_db():
+    print("get_db_called")
     try:
         db = SessionLocal()
         yield db

@@ -1,25 +1,51 @@
-from typing import List, Optional,TYPE_CHECKING
+from typing import Optional,Dict,Any
 from uuid import UUID
-from datetime import datetime
-from pydantic import BaseModel
-if TYPE_CHECKING:
-    from schemas.slot import Slot
-    from schemas.users import User
-    from schemas.tasktag import TaskTag
-    from schemas.authority import Authority
+from pydantic import BaseModel,Field
+from .tasktag import TaskTag
+from .authority import Authority
+    
+    
 
 class TaskBase(BaseModel):
     name:str
     detail:str
-    creater:"User"
-    authority:List[Authority]
-    tag:List["TaskTag"]=[]
+    
+
+
+class TaskCreate(BaseModel):
+    name:str
+    detail:str
+    max_woker_num:int=Field(1)
+    min_woker_num:int=Field(1)
+    exp_woker_num:int=Field(0)
+    tag:list[UUID]=[]
+    authority:list[UUID]=[]
+
 
 class Task(TaskBase):
     id:UUID
     creater_id:UUID
-    slot:List["Slot"]
-    expert:List["User"]
-    authority:List["Authority"]
+    creater:Any=None
+    slot:list[ Dict]=[]
+    expert:list[Dict]=[]
+    authority:list[Authority]=[]
+    tag:list[TaskTag]=[]
+    class Config:
+        orm_mode=True
+        
+        
+class TaskList(TaskBase):
+    id:UUID
+    create_id:UUID
+    class Config:
+        orm_mode=True
+        
+        
+class TaskUpdate(BaseModel):
+    name:str|None
+    detail:str|None
+    max_woker_num:int|None
+    min_woker_num:int|None
+    exp_woker_num:int|None
     class Config:
         orm_mode=True

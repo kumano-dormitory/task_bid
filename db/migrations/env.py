@@ -1,5 +1,5 @@
 import os
-import models
+from app import models
 import sqlalchemy_utils
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config

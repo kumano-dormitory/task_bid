@@ -1,19 +1,35 @@
-from typing import List,TYPE_CHECKING
+from typing import Dict
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
-if TYPE_CHECKING:
-    from schemas.task import Task
-    from schemas.users import User
-    from schemas.bid import Bid
+from .task import Task
+from .bid import Bid
+from .template import Template
     
+        
 class SlotBase(BaseModel):
     name:str
     start_time:datetime
     end_time:datetime
-    creater:"User"
-    task:"Task"
-    bid:"Bid"
+    creater:Dict
+    task:Task
+
+class DateTime(BaseModel):
+    year:int
+    month:int
+    day:int
+    hour:int
+    minute:int
+
+
+class SlotRequest(BaseModel):
+    name:str
+    start_time:DateTime
+    end_time:DateTime
+    task:str
+    class Config:
+        orm_mode=True
+    
     
 class Slot(BaseModel):
     id:UUID
@@ -23,5 +39,7 @@ class Slot(BaseModel):
     creater_id: UUID
     task_id:UUID
     bid_id:UUID
-    assignees:List["User"]
-    task:List["Task"]
+    bid:Bid
+    assignees:list[Dict]=[]
+    template:list[Template]=[]
+

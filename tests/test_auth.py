@@ -1,26 +1,25 @@
-from fastapi.testclient import TestClient
-from app.main import app
-
-client=TestClient(app)
+from conftest import client
 
 user={
         "name":"testUser",
         "password":"testUserPassword",
         "block":"B3",
-        "room_numnber":"B310"
+        "room_number":"B310"
     }
 
 def test_sign_up():
     
     response=client.post("/register/",json=user)
     assert response.status_code == 200
+    print("test_resposne",response.json())
     response_user=client.post("/login",data={
-        "name":"testUser",
+        "username":"testUser",
         "password":"testUserPassword"
     })
-    access_token=response.json().get("access_token")
+    access_token=response_user.json().get("access_token")
+    print("access_token",response_user.json())
     assert access_token
-    response_get=client.get("/users/"+response_user.id,headers={
+    response_get=client.get("/users/"+response.json().get("id"),headers={
         "Authorization":f'Bearer {access_token}'
     })
     assert response_get.status_code==200

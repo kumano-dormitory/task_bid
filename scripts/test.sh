@@ -7,3 +7,5 @@ do
 done
 
 echo "Connection established"
+
+cd /usr/src/app/db && alembic upgrade head

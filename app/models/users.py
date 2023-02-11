@@ -20,15 +20,15 @@ class Block(str,enum.Enum):
 achivement_table=Table(
     "achivement_table",
     Base.metadata,
-    Column("user",ForeignKey("user.id")),
-    Column("achivement",ForeignKey("achivement.id")),
+    Column("user",ForeignKey("user.id"),primary_key=True),
+    Column("achivement",ForeignKey("achivement.id"),primary_key=True),
 )
 
 experience_table=Table(
     "experience_table",
     Base.metadata,
-    Column("user",ForeignKey("user.id")),
-    Column("task",ForeignKey("task.id"))
+    Column("user",ForeignKey("user.id"),primary_key=True),
+    Column("task",ForeignKey("task.id"),primary_key=True)
 )
 
 slots_table=Table(
@@ -51,5 +51,5 @@ class User(Base, TimestampMixin):
     create_slot=relationship("Slot",back_populates="creater")
     create_task=relationship("Task",back_populates="creater")
     point=Column(Integer,default=0)
-    bid=relationship("Bid",back_populates="lowest_user")
+    bid=relationship("Bidder",back_populates="user")
     is_active=Column(Boolean,default=True)

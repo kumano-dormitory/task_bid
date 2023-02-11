@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
 from typing import Union
-from .user import user_get
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
-from app.schemas.users import User
+from app.models.users import User
+from app.database import get_db
+from sqlalchemy.orm import Session
+
 
 # to get a string like this run:
 # openssl rand -hex 32
@@ -26,9 +28,6 @@ fake_users_db = {
 }
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
 
 
 class TokenData(BaseModel):
@@ -36,7 +35,7 @@ class TokenData(BaseModel):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 app = FastAPI()
 
@@ -50,8 +49,8 @@ def get_password_hash(password):
 
 
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = user_get(fake_db, username)
+def authenticate_user(db:Session, username: str, password: str):
+    user = db.query(User).filter(User.name==username).first()
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -70,9 +69,9 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(db:Session=Depends(get_db),token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=status.HTTP_402_PAYMENT_REQUIRED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
@@ -84,14 +83,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = user_get(fake_users_db, username=token_data.username)
+    user = db.query(User).filter(User.name==token_data.username).first()
     if user is None:
         raise credentials_exception
     return user
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+    if current_user.is_active:
+        return current_user
+    raise HTTPException(status_code=400, detail="Inactive user")
 

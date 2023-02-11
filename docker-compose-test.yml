@@ -5,7 +5,7 @@ services:
     image: "pytest"
     container_name: "pytest"
     depends_on:
-      - test-db
+      - testdb
     build:
       context: ./docker/test
       dockerfile: Dockerfile
@@ -16,6 +16,7 @@ services:
       - ./app:/usr/src/app/app:cached
       - ./scripts:/usr/src/app/scripts:cached
       - ./tests:/usr/src/app/tests:cached
+      - ./db:/usr/src/app/db:cached
     working_dir: /usr/src/app/scripts
     command: bash -c "./test.sh"
     networks:
@@ -25,9 +26,9 @@ services:
       TZ: "Asia/Tokyo"
     env_file:
       - .env.test
-  test-db:
-    image: "fastapi_starter_test-db:0.1.0"
-    container_name: "fastapi_starter_test-db"
+  testdb:
+    image: "fastapi_testdb"
+    container_name: "fastapi_testdb"
     build:
       context: ./docker/test-db
       dockerfile: Dockerfile
