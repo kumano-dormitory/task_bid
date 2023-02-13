@@ -1,37 +1,39 @@
 {
-	"name": "api",
 	"dockerComposeFile": [
-		"../docker-compose.yml",
-		"../docker-compose.local.yml"
+		"../docker-compose-test.yml","docker-compose-test.yml"
 	],
-	"settings": {
-		"python.linting.enabled": true,
-		"python.linting.lintOnSave": true,
-		// Pylance
-		"python.languageServer": "Pylance",
-		"python.analysis.completeFunctionParens": true,
-		// Linter(flake8)
-		"python.linting.flake8Path": "/usr/local/bin/flake8",
-		"python.linting.pylintEnabled": false,
-		"python.linting.flake8Enabled": true,
-		"python.linting.flake8Args": [
-			"--exclude=/workspace/app/db/migrations/versions/*"
-		],
-		// Formatter(black)
-		"python.formatting.blackPath": "/usr/local/bin/black",
-		"python.formatting.provider": "black",
-		"python.formatting.blackArgs": [
-			"--line-length=79"
-		],
-		"[python]": {
-			"editor.formatOnSave": true
-		}
-	},
 	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 		"njpwerner.autodocstring"
 	],
-	"service": "api",
-	"workspaceFolder": "/workspace"
+	"settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "python.pythonPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.lintOnSave": true,
+        "python.linting.pylintEnabled": true,
+        "python.languageServer": "Pylance",
+        "python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+        "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+        "python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+        "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+        "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+        "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+        "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+        "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+        "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+        "python.analysis.typeCheckingMode": "basic",
+        "python.analysis.completeFunctionParens": true,
+        "python.formatting.provider": "black",
+		"python.formatting.blackArgs": [
+			"--line-length=79"
+		],
+        "[python]": {
+			"editor.formatOnSave": true
+		}
+    },
+	"service": "test",
+	"workspaceFolder": "/usr/src/app"
+	
 }
