@@ -11,9 +11,9 @@ router=APIRouter()
 @router.get("/",response_model=Task | list[TaskList])
 async def task_get(name:Union[str,None]=None,db:Session=Depends(get_db)):
     if name:
-        task=crud.task_get(name,db)
+        task=await crud.task_get(name,db)
         return task
-    tasks=crud.task_all(db)
+    tasks=await crud.task_all(db)
     return tasks
 
 

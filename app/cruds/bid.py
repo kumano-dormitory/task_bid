@@ -49,8 +49,7 @@ def bid_post(bid:BidRequest,db:Session,user:User):
                                            bid.close_time.day,
                                            bid.close_time.hour,
                                            bid.close_time.minute),
-              slot_id=bid.slot,
-              creater_id=user.id)
+              slot_id=bid.slot)
     db.add(bid)
     db.commit()
     db.refresh(bid)

@@ -16,7 +16,7 @@ def user_response(user:User):
             "create_slot":user.create_slot,
             "create_task":user.create_task,
             "point":user.point,
-            "bidder":user.bidder,
+            "bid":user.bid,
             "is_active":user.is_active}
     return response_user
 

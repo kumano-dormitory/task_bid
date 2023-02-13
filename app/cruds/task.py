@@ -5,13 +5,13 @@ from app.schemas.task import TaskCreate,TaskUpdate
 from app.schemas.users import User
 from sqlalchemy.orm import Session
 
-def task_all(db:Session):
-    items=db.query(Task).all()
+async def task_all(db:Session):
+    items=await db.query(Task).all()
     return items
 
 
-def task_get(name:str,db:Session):
-    item=db.query(Task).filter(Task.name==name).first()
+async def task_get(name:str,db:Session):
+    item=await db.query(Task).filter(Task.name==name).first()
     return item
 
 

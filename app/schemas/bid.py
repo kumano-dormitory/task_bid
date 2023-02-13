@@ -3,10 +3,18 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 
+class DateTime(BaseModel):
+    year:int
+    month:int
+    day:int
+    hour:int
+    minute:int
+
+
 class BidBase(BaseModel):
     name:str
-    open_time:datetime
-    close_time:datetime
+    open_time:DateTime
+    close_time:DateTime
     slot:Dict
     start_point:int
     buyout_point:int
@@ -20,8 +28,8 @@ class Bid(BaseModel):
 
 class BidRequest(BaseModel):
     name:str|None
-    open_time:datetime
-    close_time:datetime
+    open_time:DateTime
+    close_time:DateTime
     slot:UUID
     start_point:int
     buyout_point:int
