@@ -1,4 +1,4 @@
-from app.models.bid import Bidder
+from app.models.models import Bidder
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 def bidder_response(bidder:Bidder):

@@ -1,9 +1,9 @@
 from fastapi.testclient import TestClient
 from app.main import app
-from app.models.authority import Authority
-from app.models.slot import TaskTag
-from app.models.slot import Slot 
-from app.models.users import User
+from app.models.models import Authority
+from app.models.models import TaskTag
+from app.models.models import Slot 
+from app.models.models import User
 from app.cruds.user import user_register,user_get
 from conftest import test_client
 import pytest

@@ -1,6 +1,6 @@
 from fastapi import FastAPI ,status,HTTPException
-from app.models.authority import Authority
-from app.models.slot import Task,TaskTag
+from app.models.models import Authority
+from app.models.models import Task,TaskTag
 from app.schemas.task import TaskCreate,TaskUpdate
 from app.schemas.users import User
 from sqlalchemy.orm import Session

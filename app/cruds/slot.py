@@ -1,8 +1,8 @@
 import datetime
 from fastapi import FastAPI
-from app.models.users import User
+from app.models.models import User
 from app.schemas.slot import SlotRequest
-from app.models.slot import Slot
+from app.models.models import Slot
 from sqlalchemy.orm import Session
 from app.cruds.user import creater_response,users_response
 

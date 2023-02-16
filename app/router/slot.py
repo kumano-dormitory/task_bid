@@ -3,7 +3,7 @@ from fastapi import APIRouter,Depends,status
 from fastapi.responses import JSONResponse
 from app.database import get_db
 from sqlalchemy.orm import Session
-from app.models import User
+from app.models.models import User
 from app.schemas.users import UserBase,UserDisplay
 from app.schemas.slot import SlotRequest
 from app.router.auth import Token
