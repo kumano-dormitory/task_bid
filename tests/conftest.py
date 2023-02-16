@@ -54,7 +54,7 @@ class MyTestClient(TestClient):
        self.access_token_2=super().post("/login",data={
         "username":"test_user_2",
         "password":"testUser2Password"
-       })
+       }).json().get("access_token")
        print(self.access_token,"conftest.py")
        
        
@@ -77,13 +77,16 @@ class MyTestClient(TestClient):
              data: typing.Optional[_RequestData] = None, 
              files: typing.Optional[httpx._types.RequestFiles] = None, 
              json: typing.Any = None, params: typing.Optional[httpx._types.QueryParamTypes] = None, 
+             headers: typing.Optional[httpx._types.HeaderTypes] = None,
              cookies: typing.Optional[httpx._types.CookieTypes] = None, 
              auth: typing.Union[httpx._types.AuthTypes, httpx._client.UseClientDefault] = httpx._client.USE_CLIENT_DEFAULT, 
              follow_redirects: typing.Optional[bool] = None, 
              allow_redirects: typing.Optional[bool] = None, 
              timeout = httpx._client.USE_CLIENT_DEFAULT, extensions: typing.Optional[typing.Dict[str, typing.Any]] = None) -> httpx.Response:
-       return super().post(url, content=content, data=data, files=files, json=json, params=params, 
-                           headers={"Authorization":f'Bearer {self.access_token}'}, 
+        if not headers:
+            headers={"Authorization":f'Bearer {self.access_token}'}
+        return super().post(url, content=content, data=data, files=files, json=json, params=params, 
+                           headers=headers, 
                            cookies=cookies, auth=auth, follow_redirects=follow_redirects, 
                            allow_redirects=allow_redirects, timeout=timeout, extensions=extensions)
 
@@ -100,7 +103,7 @@ def test_db():
     DB_PASSWORD,
     DB_HOST,
     DB_NAME,)
-    engine = create_engine(DATABASE,encoding='utf-8',echo=True)
+    engine = create_engine(DATABASE,echo=True)
     Base.metadata.drop_all(bind=engine) 
     Base.metadata.create_all(bind=engine)
     print("create_all_executed")

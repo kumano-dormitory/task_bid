@@ -1,11 +1,15 @@
-from sqlalchemy import Column,String,Table,ForeignKey,DateTime,Text,Boolean,Integer
+from sqlalchemy import Column,String,Table,ForeignKey
+from typing import Optional
 from app.database import Base
-from sqlalchemy.orm import relationship
-from sqlalchemy_utils import UUIDType
-from uuid import uuid4
+from sqlalchemy.orm import mapped_column,relationship,Mapped
+from uuid import uuid4,UUID
 from .timestamp import TimestampMixin
 from .users import slots_table,experience_table
-
+from datetime import datetime
+from app.models.users import User
+from app.models.bid import Bid
+from app.models.template import Template
+from app.models.authority import Authority
 authority_table=Table(
     "authority_table",
     Base.metadata,
@@ -28,35 +32,35 @@ template_table=Table(
 )
 class Slot(Base,TimestampMixin):
     __tablename__="slot"
-    id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
-    name=Column(String(20))
-    start_time=Column(DateTime)
-    end_time=Column(DateTime)
-    assignees=relationship("User",secondary=slots_table,back_populates="slots")
-    creater_id=Column(UUIDType(binary=False),ForeignKey("user.id",ondelete="SET NULL"))
-    creater=relationship("User",back_populates="create_slot")
-    task_id=Column(UUIDType(binary=False),ForeignKey("task.id",ondelete="CASCADE"))
-    task=relationship("Task",back_populates="slot",uselist=False)
-    bid=relationship("Bid",back_populates="slot",uselist=False)
-    template=relationship("Template",secondary=template_table,back_populates="slots")
+    id:Mapped[UUID]=mapped_column(primary_key=True,default=uuid4)
+    name:Mapped[str]=mapped_column(String(20))
+    start_time:Mapped[datetime]
+    end_time:Mapped[datetime]
+    assignees:Mapped[Optional[list["User"]]]=relationship(secondary=slots_table,back_populates="slots")
+    creater_id:Mapped[UUID]=mapped_column(ForeignKey("user.id",ondelete="SET NULL"))
+    creater:Mapped["User"]=relationship(back_populates="create_slot")
+    task_id:Mapped[UUID]=mapped_column(ForeignKey("task.id",ondelete="CASCADE"))
+    task:Mapped["Task"]=relationship(back_populates="slot",uselist=False)
+    bid:Mapped[Optional["Bid"]]=relationship(back_populates="slot",uselist=False)
+    template:Mapped[list["Template"]]=relationship(secondary=template_table,back_populates="slots")
     
 class Task(Base,TimestampMixin):
     __tablename__="task"
-    id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
-    name=Column(String(20))
-    detail=Column(Text(400))
-    max_woker_num=Column(Integer,default=1) #最大人数
-    min_woker_num=Column(Integer,default=1) #最少人数
-    exp_woker_num=Column(Integer,default=0) #必要な経験者の人数
-    slot=relationship("Slot",back_populates="task",cascade="all")
-    expert=relationship("User" ,secondary=experience_table,back_populates="exp_task")
-    creater_id=Column(UUIDType(binary=False),ForeignKey("user.id",ondelete="SET NULL"))
-    creater=relationship("User",back_populates="create_task")
-    authority=relationship("Authority",secondary=authority_table,back_populates="task")
-    tag=relationship("TaskTag",secondary=tag_table,back_populates="task",lazy="joined")
+    id:Mapped[UUID]=mapped_column(primary_key=True,default=uuid4)
+    name:Mapped[str]=mapped_column(String(20))
+    detail:Mapped[str]=mapped_column(String(400))
+    max_woker_num:Mapped[int]=mapped_column(default=1) #最大人数
+    min_woker_num:Mapped[int]=mapped_column(default=1) #最少人数
+    exp_woker_num:Mapped[int]=mapped_column(default=0) #必要な経験者の人数
+    slot:Mapped[Optional[list["Slot"]]]=relationship(back_populates="task",cascade="all")
+    expert:Mapped[Optional[list["User"]]]=relationship(secondary=experience_table,back_populates="exp_task")
+    creater_id:Mapped[UUID]=mapped_column(ForeignKey("user.id",ondelete="SET NULL"))
+    creater:Mapped["User"]=relationship(back_populates="create_task")
+    authority:Mapped[Optional[list["Authority"]]]=relationship(secondary=authority_table,back_populates="task")
+    tag:Mapped[Optional[list["TaskTag"]]]=relationship(secondary=tag_table,back_populates="task",lazy="joined")
     
 class TaskTag(Base):
     __tablename__="tasktag"
-    id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
-    name=Column(String(10))
-    task=relationship("Task",secondary=tag_table,back_populates="tag")
+    id:Mapped[UUID]=mapped_column(primary_key=True,default=uuid4)
+    name:Mapped[str]=mapped_column(String(10))
+    task:Mapped[Optional[list["Task"]]]=relationship(secondary=tag_table,back_populates="tag")

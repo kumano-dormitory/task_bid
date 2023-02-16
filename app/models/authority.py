@@ -1,15 +1,14 @@
-from sqlalchemy import Column,String,Table,ForeignKey,DateTime,Text
+from sqlalchemy import String
+from typing import Optional
 from app.database import Base
-from sqlalchemy.orm import relationship
-from sqlalchemy_utils import UUIDType
-from uuid import uuid4
+from sqlalchemy.orm import relationship,Mapped,mapped_column
+from uuid import uuid4,UUID
 from .timestamp import TimestampMixin
-from .users import slots_table
 from .slot import authority_table
-
+from app.models.slot import Task
 
 class Authority(Base,TimestampMixin):
     __tablename__="authority"
-    id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
-    name=Column(String(30))
-    task=relationship("Task",secondary=authority_table,back_populates="authority")
+    id:Mapped[UUID]=mapped_column(primary_key=True,default=uuid4)
+    name:Mapped[str]=mapped_column(String(30))
+    task:Mapped[Optional[list["Task"]]]=relationship(secondary=authority_table,back_populates="authority")

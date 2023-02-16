@@ -67,9 +67,9 @@ def user_delete(name:str,db:Session):
     return name
 
 
-def add_user_exp_task(exp_task_ids:list[str],user:User,db:Session):
+def add_user_exp_task(request,user:User,db:Session):
     user=db.query(User).get(user.id)
-    for task_id in exp_task_ids:
+    for task_id in request.exp_task:
         task=db.query(Task).get(task_id)
         user.exp_task.append(task)
     db.commit()

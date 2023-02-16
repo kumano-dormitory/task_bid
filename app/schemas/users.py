@@ -7,6 +7,14 @@ from .task import Task
 from .bid import Bid
 from .slot import Slot
     
+    
+    
+    
+class AddUserTask(BaseModel):
+    exp_task:list[str]
+    class Config:
+        orm_mode=True
+
 
 
 class UserBase(BaseModel):
