@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, DeclarativeBase
 from .env import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
 
 DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8' % (
@@ -12,7 +11,6 @@ DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8' % (
 
 engine = create_engine(
     DATABASE,
-    encoding='utf-8',
     echo=True
 )
 
@@ -25,7 +23,8 @@ SessionLocal = scoped_session(
     )
 )
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 Base.query = SessionLocal.query_property()
 
 

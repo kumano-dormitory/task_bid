@@ -1,16 +1,16 @@
-from sqlalchemy import Column,String,Integer
+from sqlalchemy import String
 from app.database import Base
-from sqlalchemy.orm import relationship
-from sqlalchemy_utils import UUIDType
-from uuid import uuid4
+from typing import Optional
+from sqlalchemy.orm import relationship,mapped_column,Mapped
+from uuid import uuid4,UUID
 from .timestamp import TimestampMixin
 from .users import achivement_table
-import enum
+from app.models.users import User
 
 
 class Achivement(Base,TimestampMixin):
     __tablename__="achivement"
-    id=Column(UUIDType(binary=False),primary_key=True,default=uuid4)
-    term=Column(Integer)
-    name=Column(String(20))
-    user=relationship("User",secondary=achivement_table, back_populates="achivement")
+    id:Mapped[UUID]=mapped_column(primary_key=True,default=uuid4)
+    term:Mapped[int]
+    name:Mapped[str]=mapped_column(String(20))
+    user:Mapped[Optional[list["User"]]]=relationship(secondary=achivement_table, back_populates="achivement")
