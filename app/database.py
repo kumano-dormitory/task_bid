@@ -1,18 +1,16 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import create_engine,types
+from sqlalchemy.orm import sessionmaker, scoped_session, DeclarativeBase
 from .env import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
-
-DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8' % (
-    DB_USER,
-    DB_PASSWORD,
+import uuid
+DATABASE = "postgresql://%s:5432/%s?user=%s&password=%s" % (
     DB_HOST,
     DB_NAME,
+    DB_USER,
+    DB_PASSWORD,
 )
 
 engine = create_engine(
     DATABASE,
-    encoding='utf-8',
     echo=True
 )
 
@@ -25,13 +23,13 @@ SessionLocal = scoped_session(
     )
 )
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 Base.query = SessionLocal.query_property()
 
 
 # Dependency Injection用
 def get_db():
-    print("get_db_called")
     try:
         db = SessionLocal()
         yield db

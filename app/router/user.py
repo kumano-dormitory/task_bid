@@ -3,8 +3,8 @@ from fastapi import APIRouter,Depends,status
 from fastapi.responses import JSONResponse
 from app.database import get_db
 from sqlalchemy.orm import Session
-from app.models import User
-from app.schemas.users import UserBase,UserDisplay
+from app.models.models import User
+from app.schemas.users import UserBase,UserDisplay,AddUserTask
 from app.router.auth import Token
 from app.cruds.auth import oauth2_scheme,get_current_active_user
 from typing import Union
@@ -38,9 +38,8 @@ async def user_delete(name:str,db:Session=Depends(get_db)):
 
 
 @router.patch("/task")
-async def add_user_exp_task(request,current_user:User=Depends(get_current_active_user),
-                            db:Session=Depends(get_db)):
-    user=crud.add_user_exp_task(request.exp_task,current_user,db)
+async def add_user_exp_task(request:AddUserTask,db:Session=Depends(get_db),user:User=Depends(get_current_active_user)):
+    user=crud.add_user_exp_task(request,user,db)
     return user
 
 

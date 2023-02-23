@@ -5,9 +5,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
-from app.models.users import User
+from app.models.models import User
 from app.database import get_db
 from sqlalchemy.orm import Session
+from sqlalchemy.future import select
 
 
 # to get a string like this run:
@@ -50,7 +51,7 @@ def get_password_hash(password):
 
 
 def authenticate_user(db:Session, username: str, password: str):
-    user = db.query(User).filter(User.name==username).first()
+    user = db.scalars(select(User).filter_by(name=username).limit(1)).first()
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -83,7 +84,7 @@ async def get_current_user(db:Session=Depends(get_db),token: str = Depends(oauth
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = db.query(User).filter(User.name==token_data.username).first()
+    user = db.scalars(select(User).filter_by(name=token_data.username).limit(1)).first()
     if user is None:
         raise credentials_exception
     return user

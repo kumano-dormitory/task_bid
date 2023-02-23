@@ -10,6 +10,10 @@ class DateTime(BaseModel):
     hour:int
     minute:int
 
+class TenderRequest(BaseModel):
+    tender_point:int
+    class Config:
+        orm_mode=True
 
 class BidBase(BaseModel):
     name:str

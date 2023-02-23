@@ -16,10 +16,10 @@ _RequestData = typing.Mapping[str, typing.Union[str, typing.Iterable[str]]]
 
 APP_ENV = os.environ.get('APP_ENV')
 
-DB_USER = os.environ.get('MYSQL_USER')
-DB_PASSWORD = os.environ.get('MYSQL_PASSWORD')
-DB_HOST = os.environ.get('MYSQL_HOST')
-DB_NAME = os.environ.get('MYSQL_DATABASE')
+DB_USER = os.environ.get('POSTGRES_USER')
+DB_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+DB_HOST = os.environ.get('POSTGRES_HOST')
+DB_NAME = os.environ.get('POSTGRES_DATABASE')
 
 client=TestClient(app)
 
@@ -54,7 +54,7 @@ class MyTestClient(TestClient):
        self.access_token_2=super().post("/login",data={
         "username":"test_user_2",
         "password":"testUser2Password"
-       })
+       }).json().get("access_token")
        print(self.access_token,"conftest.py")
        
        
@@ -77,13 +77,16 @@ class MyTestClient(TestClient):
              data: typing.Optional[_RequestData] = None, 
              files: typing.Optional[httpx._types.RequestFiles] = None, 
              json: typing.Any = None, params: typing.Optional[httpx._types.QueryParamTypes] = None, 
+             headers: typing.Optional[httpx._types.HeaderTypes] = None,
              cookies: typing.Optional[httpx._types.CookieTypes] = None, 
              auth: typing.Union[httpx._types.AuthTypes, httpx._client.UseClientDefault] = httpx._client.USE_CLIENT_DEFAULT, 
              follow_redirects: typing.Optional[bool] = None, 
              allow_redirects: typing.Optional[bool] = None, 
              timeout = httpx._client.USE_CLIENT_DEFAULT, extensions: typing.Optional[typing.Dict[str, typing.Any]] = None) -> httpx.Response:
-       return super().post(url, content=content, data=data, files=files, json=json, params=params, 
-                           headers={"Authorization":f'Bearer {self.access_token}'}, 
+        if not headers:
+            headers={"Authorization":f'Bearer {self.access_token}'}
+        return super().post(url, content=content, data=data, files=files, json=json, params=params, 
+                           headers=headers, 
                            cookies=cookies, auth=auth, follow_redirects=follow_redirects, 
                            allow_redirects=allow_redirects, timeout=timeout, extensions=extensions)
 
@@ -96,11 +99,13 @@ class TestingSession(Session):
 @pytest.fixture(scope="session",autouse=True)
 def test_db():
     print("test_db_called")
-    DATABASE = 'mysql+pymysql://%s:%s@%s/%s?charset=utf8' % (DB_USER,
+    DATABASE = "postgresql://%s:%s@%s/%s" % (
+    DB_USER,
     DB_PASSWORD,
     DB_HOST,
     DB_NAME,)
-    engine = create_engine(DATABASE,encoding='utf-8',echo=True)
+    print(DATABASE,"データベース")
+    engine = create_engine(DATABASE,echo=True)
     Base.metadata.drop_all(bind=engine) 
     Base.metadata.create_all(bind=engine)
     print("create_all_executed")
