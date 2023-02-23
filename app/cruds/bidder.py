@@ -1,6 +1,7 @@
 from app.models.models import Bidder
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
+from sqlalchemy.future import select
 def bidder_response(bidder:Bidder):
     response={
         "bid_id":bidder.bid_id,
@@ -11,10 +12,11 @@ def bidder_response(bidder:Bidder):
 
 def bidder_get(bid_id,user_id,db:Session):
     if bid_id and user_id:
-        bidder=[jsonable_encoder(bidder) for bidder in db.query(Bidder).filter(Bidder.bid_id==bid_id).filter(Bidder.user_id==user_id).all()]
+        bidder=[jsonable_encoder(bidder) for bidder in db.scalars(select(Bidder).filter_by(bid_id=bid_id).filter_by(user_id=user_id)).all()]
     elif bid_id:
-        bidder=[jsonable_encoder(bidder) for bidder in db.query(Bidder).filter(Bidder.bid_id==bid_id).all()]
+        bidder=[jsonable_encoder(bidder) for bidder in db.scalars(select(Bidder).filter_by(bid_id=bid_id)).all()]
     elif user_id:
-        bidder=[jsonable_encoder(bidder) for bidder in db.query(Bidder).filter(Bidder.user_id==user_id).all()]
-    else :bidder=[jsonable_encoder(bidder) for bidder in db.query(Bidder).all()]
+        bidder=[jsonable_encoder(bidder) for bidder in db.scalars(select(Bidder).filter_by(user_id=user_id)).all()]
+    else :
+        bidder=[jsonable_encoder(bidder) for bidder in db.scalars(select(Bidder)).all()]
     return bidder

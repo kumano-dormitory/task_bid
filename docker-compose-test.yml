@@ -34,11 +34,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     tty: true
-    expose:
-      - "3306"
-    volumes:
-      - ./docker/test-db/conf.d:/etc/mysql/conf.d:cached
-      - ./log/db:/var/log/mysql:cached
+    ports:
+      - 5432:5432
     networks:
       - fastapi_test_network
     environment:

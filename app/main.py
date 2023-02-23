@@ -10,9 +10,9 @@ async def root():
 
 app.include_router(achivement.router,prefix="/achivements")
 app.include_router(authority.router,prefix="/authority")
-app.include_router(bid.router,prefix="/bid")
+app.include_router(bid.router,prefix="/bids")
 app.include_router(slot.router,prefix="/slots")
 app.include_router(task.router,prefix="/tasks")
 app.include_router(user.router,prefix="/users")
 app.include_router(auth.router,prefix="")
-app.include_router(bidder.router,prefix="/bidder")
+app.include_router(bidder.router,prefix="/bidders")

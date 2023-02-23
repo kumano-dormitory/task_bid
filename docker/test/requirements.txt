@@ -11,3 +11,4 @@ passlib
 python-multipart
 pymysql
 pytest-asyncio
+psycopg2

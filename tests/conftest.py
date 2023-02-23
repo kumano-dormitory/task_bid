@@ -16,10 +16,10 @@ _RequestData = typing.Mapping[str, typing.Union[str, typing.Iterable[str]]]
 
 APP_ENV = os.environ.get('APP_ENV')
 
-DB_USER = os.environ.get('MYSQL_USER')
-DB_PASSWORD = os.environ.get('MYSQL_PASSWORD')
-DB_HOST = os.environ.get('MYSQL_HOST')
-DB_NAME = os.environ.get('MYSQL_DATABASE')
+DB_USER = os.environ.get('POSTGRES_USER')
+DB_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+DB_HOST = os.environ.get('POSTGRES_HOST')
+DB_NAME = os.environ.get('POSTGRES_DATABASE')
 
 client=TestClient(app)
 
@@ -99,10 +99,12 @@ class TestingSession(Session):
 @pytest.fixture(scope="session",autouse=True)
 def test_db():
     print("test_db_called")
-    DATABASE = 'mysql+pymysql://%s:%s@%s/%s?charset=utf8' % (DB_USER,
+    DATABASE = "postgresql://%s:%s@%s/%s" % (
+    DB_USER,
     DB_PASSWORD,
     DB_HOST,
     DB_NAME,)
+    print(DATABASE,"データベース")
     engine = create_engine(DATABASE,echo=True)
     Base.metadata.drop_all(bind=engine) 
     Base.metadata.create_all(bind=engine)
