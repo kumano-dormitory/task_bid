@@ -1,5 +1,5 @@
 import os
-from app import models
+from app.database import Base
 import sqlalchemy_utils
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
@@ -12,18 +12,18 @@ config = context.config
 
 # DB接続用設定追加
 # connect to database
-DB_USER = os.environ.get('MYSQL_USER')
-DB_PASSWORD = os.environ.get('MYSQL_PASSWORD')
-DB_ROOT_PASSWORD = os.environ.get('MYSQL_ROOT_PASSWORD')
-DB_HOST = os.environ.get('MYSQL_HOST')
-DB_NAME = os.environ.get('MYSQL_DATABASE')
+DB_USER = os.environ.get('POSTGRES_USER')
+DB_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+DB_NAME = os.environ.get('POSTGRES_DB')
 
-DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8' % (
+
+
+DATABASE = "postgresql+psycopg2://%s:%s@db:5432/%s" % (
     DB_USER,
     DB_PASSWORD,
-    DB_HOST,
-    DB_NAME,
-)
+    DB_NAME,)
+
+
 config.set_main_option('sqlalchemy.url', DATABASE)
 
 # Interpret the config file for Python logging.
@@ -35,7 +35,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = models.Base.metadata
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

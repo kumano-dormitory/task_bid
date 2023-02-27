@@ -1,8 +1,8 @@
-"""change my.cnf
+"""change import
 
-Revision ID: 1d0688342a70
-Revises: 9fda45c63f87
-Create Date: 2022-12-23 11:34:15.766082
+Revision ID: fe854c333cec
+Revises: e4d78289da7f
+Create Date: 2023-02-27 14:00:40.987458
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1d0688342a70'
-down_revision = '9fda45c63f87'
+revision = 'fe854c333cec'
+down_revision = 'e4d78289da7f'
 branch_labels = None
 depends_on = None
 

@@ -1,13 +1,12 @@
 from sqlalchemy import create_engine,types
 from sqlalchemy.orm import sessionmaker, scoped_session, DeclarativeBase
-from .env import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
+from .env import DB_USER, DB_PASSWORD,  DB_NAME
 import uuid
-DATABASE = "postgresql://%s:5432/%s?user=%s&password=%s" % (
-    DB_HOST,
-    DB_NAME,
+
+DATABASE = "postgresql+psycopg2://%s:%s@db:5432/%s" % (
     DB_USER,
     DB_PASSWORD,
-)
+    DB_NAME,)
 
 engine = create_engine(
     DATABASE,

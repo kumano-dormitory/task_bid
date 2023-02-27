@@ -23,6 +23,21 @@ async def bid_post(bid:BidRequest,db:Session=Depends(get_db),user:User=Depends(g
     response=crud.bid_post(bid,db,user)
     return response
 
+@router.get('/open')
+async def bid_user_bidable(user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):
+    response=crud.bid_user_bidable(user,db)
+    return response
+
+
+@router.get('/lack')
+async def bid_user_lacking(user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):
+    response=crud.bid_lack(user,db)
+    return response["lack_bids"]
+
+@router.get('/lack_exp')
+async def bid_exp_lacking(user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):
+    response=crud.bid_lack(user,db)
+    return response["lack_exp_bids"]
 
 @router.post("/{bid_id}/tender")
 async def bid_tender(bid_id:str,request:TenderRequest,current_user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):

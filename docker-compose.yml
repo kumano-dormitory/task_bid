@@ -1,11 +1,33 @@
 version: "3.7"
 
 services:
+  react:
+    build: 
+      context: ./
+      dockerfile: ./docker/react/Dockerfile
+    container_name: tb-front-container
+    hostname: tb-front-container
+    depends_on:
+      - api
+      - db
+    tty: true
+    environment:
+      - NODE_ENV=DEVELOPMENT
+    volumes:
+      - react-data:/usr/src/react/node_modules
+      - ./react:/usr/src/react
+      - ./scripts:/usr/src/scripts
+    ports:
+      - 3000:3000
+    working_dir: /usr/src/scripts
+    command: ["sh","./run_react.sh"]
   api:
     image: "fastapi_starter:1.0.0"
     container_name: "fastapi_starter"
     depends_on:
       - db
+   #   db:
+    #    condition: service_healthy
     build:
       context: ./docker/api
       dockerfile: Dockerfile
@@ -17,38 +39,31 @@ services:
       - ./scripts:/usr/src/app/scripts:cached
     working_dir: /usr/src/app/scripts
     command: bash -c "./run.sh"
-    networks:
-      - fastapi_network
     environment:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
     env_file:
       - .env.development
   db:
-    image: "fastapi_starter_db:0.1.0"
-    container_name: "fastapi_starter_db"
+    image: "fastapi_db"
+    container_name: "fastapi_db"
     build:
-      context: ./docker/db
+      context: ./docker/test-db
       dockerfile: Dockerfile
     restart: always
     tty: true
-    expose:
-      - "3306"
-    volumes:
-      - ./docker/db/conf.d:/etc/mysql/conf.d:cached
-      - ./log/db:/var/log/mysql:cached
-    networks:
-      - fastapi_network
+    ports:
+      - 5432:5432
     environment:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
     env_file:
       - .env.development
-networks:
-  default:
-    external:
-      name: bridge
-  fastapi_network:
-    name: fastapi_network
-    driver: bridge
-    external: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  react-data:

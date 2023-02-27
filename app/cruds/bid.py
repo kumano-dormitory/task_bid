@@ -61,6 +61,50 @@ def bid_post(bid:BidRequest,db:Session,user:User):
     return bid_response(bid)
 
 
+def bids_response(bids:list[Bid]):
+    respone_bids=[{
+        "id":bid.id,
+        "name":bid.name,
+        "open_time":{
+            "year":bid.open_time.year,
+            "month":bid.open_time.month,
+            "day":bid.open_time.day,
+            "hour":bid.open_time.hour,
+            "minute":bid.open_time.minute,
+        },
+        "close_time":{
+            "year":bid.close_time.year,
+            "month":bid.close_time.month,
+            "day":bid.close_time.day,
+            "hour":bid.close_time.hour,
+            "minute":bid.close_time.minute,
+        },
+        "slot":{
+            "id":bid.slot_id,
+            "name":bid.slot.name,
+            "start_time":{
+            "year":bid.slot.start_time.year,
+            "month":bid.slot.start_time.month,
+            "day":bid.slot.start_time.day,
+            "hour":bid.slot.start_time.hour,
+            "minute":bid.slot.start_time.minute,
+        },
+            "end_time":{
+            "year":bid.slot.end_time.year,
+            "month":bid.slot.end_time.month,
+            "day":bid.slot.end_time.day,
+            "hour":bid.slot.end_time.hour,
+            "minute":bid.slot.end_time.minute,
+        },
+        },
+        "start_point":bid.start_point,
+        "buyout_point":bid.buyout_point,
+        "is_complete":bid.is_complete,
+    } for bid in bids]
+    return respone_bids
+
+
+
 def bid_all(db:Session):
     items=db.scalars(select(Bid)).all()
     respone_bids=[{
@@ -72,12 +116,18 @@ def bid_all(db:Session):
     return respone_bids
 
 
+def bid_user_bidable(user:User,db:Session):
+    opening_bids=db.execute(select(Bid).filter(Bid.open_time<datetime.datetime.now(),Bid.close_time>datetime.datetime.now())).scalars().all()
+    return bids_response(opening_bids)
+
+
+    
 def bid_get(name:str,db:Session):
     item=db.scalars(select(Bid).filter_by(name=name).limit(1)).first()
     respone_slot=bid_response(item)
     return respone_slot
 
-def bid_lack(db:Session):
+def bid_lack(user:User,db:Session):
     bids=db.execute(select(Bid).filter(Bid.is_complete)).scalars().all()
     
     lack_exp_bids=[]
@@ -88,13 +138,13 @@ def bid_lack(db:Session):
         task=slot.task
         exp_assignees=[exp_assignee for exp_assignee in assignees if task in assignees.exp_task]
         if task.exp_woker_num>len(exp_assignees):
-            lack_exp_bids.append(bid_response(bid))
+            lack_exp_bids.append(bid)
             continue
         elif task.min_woker_num > len(assignees):
-            lack_bids.append(bid_response(bid))
+            lack_bids.append(bid)
             continue
         
-    return {"lack_bids":lack_bids,"lack_exp_bids":lack_exp_bids}
+    return {"lack_bids":bids_response(lack_bids),"lack_exp_bids":bids_response(lack_exp_bids)}
 
 
 
