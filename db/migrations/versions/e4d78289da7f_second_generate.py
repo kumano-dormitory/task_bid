@@ -1,8 +1,8 @@
-"""revise error of bidder
+"""second generate
 
-Revision ID: 9a9afb9e5264
-Revises: dcbd14eba696
-Create Date: 2023-02-10 12:38:06.685457
+Revision ID: e4d78289da7f
+Revises: 7d1acb5debf5
+Create Date: 2023-02-27 13:32:37.166814
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9a9afb9e5264'
-down_revision = 'dcbd14eba696'
+revision = 'e4d78289da7f'
+down_revision = '7d1acb5debf5'
 branch_labels = None
 depends_on = None
 
