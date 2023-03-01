@@ -21,18 +21,6 @@ async def slot_list(name:str|None=None,db:Session=Depends(get_db)):
         return slot
     slots=crud.slot_all(db)
     return slots
-    
-
-
-@router.get("/slots/{user_id}")
-async def slot_one():
-    pass
-
-
-@router.put("/slots/{user_id}")
-async def update_slot():
-    pass
-
 
 @router.post("/")
 async def slot_post(slot:SlotRequest,db:Session=Depends(get_db),user:User=Depends(get_current_active_user)):

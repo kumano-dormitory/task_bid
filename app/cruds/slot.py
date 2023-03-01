@@ -4,61 +4,8 @@ from app.models.models import User
 from app.schemas.slot import SlotRequest
 from app.models.models import Slot,Bidder,Bid
 from sqlalchemy.orm import Session
-from app.cruds.user import creater_response,users_response,user_response
+from app.cruds.response import slot_response,user_response 
 from sqlalchemy.future import select
-from app.cruds.task import task_response
-
-def slot_response(slot:Slot):
-    response={
-        "id":slot.id,
-        "name":slot.name,
-        "start_time":{
-            "year":slot.start_time.year,
-            "month":slot.start_time.month,
-            "day":slot.start_time.day,
-            "hour":slot.start_time.hour,
-            "minute":slot.start_time.minute,
-        },
-        "end_time":{
-            "year":slot.end_time.year,
-            "month":slot.end_time.month,
-            "day":slot.end_time.day,
-            "hour":slot.end_time.hour,
-            "minute":slot.end_time.minute,
-        },
-        "assignees":users_response(slot.assignees),
-        "creater":creater_response(slot.creater),
-        "task":slot.task,
-        "bid":slot.bid,
-        "template":slot.template
-        
-    }
-    return response
-
-
-def slots_response(slots:list[Slot]):
-    response=[{
-        "id":slots.id,
-        "name":slots.name,
-        "start_time":{
-            "year":slots.start_time.year,
-            "month":slots.start_time.month,
-            "day":slots.start_time.day,
-            "hour":slots.start_time.hour,
-            "minute":slots.start_time.minute,
-        },
-        "end_time":{
-            "year":slots.end_time.year,
-            "month":slots.end_time.month,
-            "day":slots.end_time.day,
-            "hour":slots.end_time.hour,
-            "minute":slots.end_time.minute,
-        },
-        "creater":creater_response(slots.creater),
-        "task":task_response(slots.task),
-    } for slots in slots]
-    return response
-
 
 def slot_all(db:Session):
     items=db.scalars(select(Slot)).all()

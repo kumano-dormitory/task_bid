@@ -25,6 +25,16 @@ async def user_one(user_id,db:Session=Depends(get_db),token:Token=Depends(oauth2
     user=db.get(User,user_id)
     return user
 
+@router.get('/{user_id}/createslot')
+async def user_createslot(user_id:str,db:Session=Depends(get_db),):
+    slots=crud.user_createslots(user_id,db)
+    return slots
+
+
+@router.get('/{user_id}/createtask')
+async def user_createtask(user_id:str,db:Session=Depends(get_db),):
+    tasks=crud.user_createtask(user_id,db)
+    return tasks
 
 @router.delete("/",status_code=200)
 async def user_delete(name:str,db:Session=Depends(get_db)):

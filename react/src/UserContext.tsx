@@ -2,6 +2,7 @@ import axios from "./axios";
 import React, { createContext, useContext } from "react";
 import useSWR, { Fetcher } from "swr";
 import { useNavigate } from "react-router-dom";
+import userEvent from "@testing-library/user-event";
 type User = {
   id: string;
   name: string;
@@ -17,6 +18,10 @@ type User = {
   is_active: boolean;
 };
 
+type UserContextType = {
+    user:User
+}
+
 const getCurrentUser: Fetcher<User> = (url:string) => {
     return axios.get(url).then((response) => response.data);
 };
@@ -25,12 +30,15 @@ type UserManagerProps = {
     children:React.ReactNode
 }
 
-const UserContext=createContext({} as User)
+export const UserContext=createContext({} as UserContextType)
 
 export const UserManager: React.FC<UserManagerProps> = (props:UserManagerProps) => {
     const navigate=useNavigate()
     const { data, error } = useSWR('/me', getCurrentUser)
     if (error) navigate('/login')
     if (!data) return <div>Loading...</div>
-    return <UserContext.Provider value={data}>{props.children}</UserContext.Provider>
+    const value = {
+        user:data
+    }
+    return <UserContext.Provider value={value}>{props.children}</UserContext.Provider>
 };

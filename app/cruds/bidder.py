@@ -2,13 +2,7 @@ from app.models.models import Bidder
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
-def bidder_response(bidder:Bidder):
-    response={
-        "bid_id":bidder.bid_id,
-        "user_id":bidder.user_id,
-        "point":bidder.point
-    }
-    return response
+
 
 def bidder_get(bid_id,user_id,db:Session):
     if bid_id and user_id:

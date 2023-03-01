@@ -1,22 +1,27 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useContext } from "react";
 import axios from "./axios";
 import useSWR, { Fetcher } from "swr";
-import { isBindingElement } from "typescript";
-import { Box, Stack } from "@mui/system";
 import SlotCard from "./SlotCard";
-import { Card, List, ListSubheader } from "@mui/material";
+import {  List, ListSubheader } from "@mui/material";
 import { ScrollMenu } from "react-horizontal-scrolling-menu";
-import { CallEnd } from "@mui/icons-material";
 import { ResponseColumn } from "./ResponseColumn";
 import { Date, SlotResponse } from "./ResponseType";
-
+import { UserContext } from "./UserContext";
 const getCreateSlot: Fetcher<SlotResponse[]> = (url: string) => {
   return axios.get(url).then((response) => response.data);
 };
 
-export const CreateSlotList: React.FC = () => {
-  const { data, error } = useSWR('', getCreateSlot);
+type CreateListProps = {
+  url:string,
+}
+
+export const CreateList: React.FC<CreateListProps> = (props:CreateListProps) => {
+  const { user } = useContext(UserContext);
+  const { data, error } = useSWR(
+    "/users/" + user.id + props.url,
+    getCreateSlot
+  );
   if (error) return <TestList />;
   if (!data) return <div>loading...</div>;
   const days: Date[] = Array.from(
