@@ -22,8 +22,9 @@ async def task_get(name:Union[str,None]=None,db:Session=Depends(get_db)):
 
 @router.post("/",response_model=Task | None)
 async def task_post(task:TaskCreate,db:Session=Depends(get_db),current_user:User=Depends(auth.get_current_active_user)):
-    task=crud.task_post(task,current_user,db)
-    return task
+    if auth.check_authority(current_user,method='POST',url='/tasks/'):
+        task=crud.task_post(task,current_user,db)
+        return task
 
 
 @router.patch("/{task_id}")

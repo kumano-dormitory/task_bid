@@ -61,6 +61,28 @@ def bid_post(bid:BidRequest,db:Session,user:User):
     return bid_response(bid)
 
 
+def bid_post_personal(bid:BidRequest,db:Session,user:User):
+    bid=Bid(name=bid.name,
+              open_time=datetime.datetime(bid.open_time.year,
+                                           bid.open_time.month,
+                                           bid.open_time.day,
+                                           bid.open_time.hour,
+                                           bid.open_time.minute),
+              close_time=datetime.datetime(bid.close_time.year,
+                                           bid.close_time.month,
+                                           bid.close_time.day,
+                                           bid.close_time.hour,
+                                           bid.close_time.minute),
+              start_point=bid.start_point,
+              buyout_point=bid.buyout_point,
+              slot_id=bid.slot)
+    db.add(bid)
+    user.point-=bid.buyout_point
+    db.commit()
+    db.refresh(bid)
+    return bid_response(bid)
+
+
 def bids_response(bids:list[Bid]):
     respone_bids=[{
         "id":bid.id,

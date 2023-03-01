@@ -7,9 +7,10 @@ from fastapi import APIRouter,Depends,FastAPI, HTTPException, status
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app.schemas.users import UserBase,UserDisplay
-from app.cruds.auth import authenticate_user,create_access_token
+from app.cruds.auth import authenticate_user,create_access_token,get_current_active_user
+from app.cruds.user import user_response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
+from app.models.models import User
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
@@ -49,3 +50,7 @@ async def login_for_access_token(form_data:OAuth2PasswordRequestForm = Depends()
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@router.get('/me')
+async def get_current_user(user:User=Depends(get_current_active_user)):
+    return user_response(user)
+           

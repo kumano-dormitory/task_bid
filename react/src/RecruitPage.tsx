@@ -3,9 +3,9 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { TabUnselected } from "@mui/icons-material";
 import { createContext } from "react";
 import { BidList } from "./BidList";
+import { CreateSlotList } from "./CreateList";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -39,12 +39,10 @@ function a11yProps(index: number) {
   };
 }
 
-export const UrlContext = createContext('/bids/open');
 
 export const BidPage: React.FC = () => {
   const [value, setValue] = React.useState(0);
-  const [url, setURL] = React.useState('/bids/open')
-  
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -57,26 +55,56 @@ export const BidPage: React.FC = () => {
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label="募集中" onClick={()=>setURL('bids/open')} {...a11yProps(0)} />
-          <Tab label="人数不足中" onClick={()=>setURL('bids/lack')} {...a11yProps(1)} />
-          <Tab label="完了したシフト" onClick={()=>setURL('bids/open')} {...a11yProps(2)} />
-          <Tab label="新規募集" onClick={()=>setURL('bids/open')} {...a11yProps(3)} />
+          <Tab
+            label="募集中"
+            
+            {...a11yProps(0)}
+          />
+          <Tab
+            label="人数不足中"
+
+            {...a11yProps(1)}
+          />
+          <Tab
+            label="完了したシフト"
+
+            {...a11yProps(2)}
+          />
+          <Tab
+            label="募集した仕事"
+
+            {...a11yProps(3)}
+          />
+          <Tab
+            label="作成したタスク"
+
+            {...a11yProps(4)}
+          />
+          <Tab
+          label="新規作成"
+          {...a11yProps(5)}
+        />
         </Tabs>
+      
       </Box>
-      <UrlContext.Provider value={url}>
-      <TabPanel value={value} index={0}>
-      <BidList/>
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        人数不足中
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        終わったシフト
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        新規募集
+        <TabPanel value={value} index={0}>
+          <BidList url='/bids/open' />
         </TabPanel>
-        </UrlContext.Provider>
+        <TabPanel value={value} index={1}>
+        <BidList url='/bids/lack' />
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          終わったシフト
+        </TabPanel>
+        <TabPanel value={value} index={3}>
+          <CreateSlotList />
+        </TabPanel>
+        <TabPanel value={value} index={4}>
+          <CreateSlotList />
+        </TabPanel>
+        <TabPanel value={value} index={5}>
+          新規作成
+        </TabPanel>
     </Box>
   );
 };

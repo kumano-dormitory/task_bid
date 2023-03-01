@@ -1,21 +1,22 @@
-import React from 'react';
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { BidPage } from './BidPage';
-import { Register } from './Register';
-import { Login } from './Login';
-import { Layout } from './Layout';
-const  App:React.FC =()=> {
+import { BidPage } from "./RecruitPage";
+import { Register } from "./Register";
+import { Login } from "./Login";
+import { Layout } from "./Layout";
+import { UserManager } from "./UserContext";
+const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <Routes>
-      <Route path='/' element={<Layout />} >
-        <Route path={`/bidpage/`} element={<BidPage />} />
-        <Route path={`/register/`} element={<Register />} />
-        <Route path={`/login/`} element={<Login />} />
-      </Route>
-    </Routes>
-  </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route path={`/bidpage/`} element={<UserManager><BidPage /></UserManager>} />
+            <Route path={`/register/`} element={<Register />} />
+            <Route path={`/login/`} element={<Login />} />
+          </Route>
+        </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

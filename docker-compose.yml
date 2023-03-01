@@ -54,6 +54,8 @@ services:
     tty: true
     ports:
       - 5432:5432
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
     environment:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
@@ -67,3 +69,4 @@ services:
 
 volumes:
   react-data:
+  postgres_volume:

@@ -7,6 +7,7 @@ from app.database import get_db
 from app.cruds.auth import get_current_active_user
 import app.cruds.bid as crud
 import app.cruds.slot as crudslot
+from app.cruds import auth
 from  sqlalchemy.future import select
 router=APIRouter()
 
@@ -20,8 +21,18 @@ async def bid_get(name:str|None=None,db:Session=Depends(get_db)):
     
 @router.post("/")
 async def bid_post(bid:BidRequest,db:Session=Depends(get_db),user:User=Depends(get_current_active_user)):
-    response=crud.bid_post(bid,db,user)
-    return response
+    if auth.check_authority(user,'POST','/bids/'):
+        response=crud.bid_post(bid,db,user)
+        return response
+    elif bid.buyout_point==0:
+        response=crud.bid_post(bid,db,user)
+        return response
+
+@router.post('/personal')
+async def bid_post_personal(bid:BidRequest,db:Session=Depends(get_db),user:User=Depends(get_current_active_user)):
+    if auth.check_authority(user,'POST','/bids/personal'):
+        response=crud.bid_post_personal(bid,db,user)
+        return response
 
 @router.get('/open')
 async def bid_user_bidable(user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):

@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
-from app.models.models import User
+from app.models.models import User,Method,Authority
 from app.database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
@@ -13,21 +13,9 @@ from sqlalchemy.future import select
 
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = "9343174155ee7db2d9ad9985aac201fec735c0a56a298e0ad4296e9ea91c2243"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
-
 
 
 
@@ -95,3 +83,20 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         return current_user
     raise HTTPException(status_code=400, detail="Inactive user")
 
+
+async def check_authority(user:User,method:Method,url:str):
+    tasks=[slot.task for slot in user.slots]
+    authority=[]
+    for task in tasks:
+        authority+=task.authority
+    url=[(authority.method,authority.url) for authority in authority]
+    if (method,url) in url:
+        return True
+    raise HTTPException(status_code=401,detail=f'Authority required to access {url} ')
+
+async def authority_post(name:str,method:Method,url:str,db:Session):
+    authority=Authority(name=name,method=method,url=url)
+    db.add(authority)
+    db.commit()
+    db.refresh()
+    return authority

@@ -26,11 +26,6 @@ async def user_one(user_id,db:Session=Depends(get_db),token:Token=Depends(oauth2
     return user
 
 
-@router.get("/me")
-async def user_self(current_user:User=Depends(get_current_active_user)):
-    return crud.user_response(current_user)
-
-
 @router.delete("/",status_code=200)
 async def user_delete(name:str,db:Session=Depends(get_db)):
     crud.user_delete(name,db)

@@ -9,27 +9,23 @@ import { Card, List, ListSubheader } from "@mui/material";
 import { ScrollMenu } from "react-horizontal-scrolling-menu";
 import { CallEnd } from "@mui/icons-material";
 import { ResponseColumn } from "./ResponseColumn";
-import {Date, BidResponse } from "./ResponseType";
+import { Date, SlotResponse } from "./ResponseType";
 
-type BidListProps = {
-  url:string
-}
-
-const getBids: Fetcher<BidResponse[]> = (url: string) => {
+const getCreateSlot: Fetcher<SlotResponse[]> = (url: string) => {
   return axios.get(url).then((response) => response.data);
 };
 
-export const BidList: React.FC<BidListProps> = (props:BidListProps) => {
-  const { data, error } = useSWR(props.url, getBids);
+export const CreateSlotList: React.FC = () => {
+  const { data, error } = useSWR('', getCreateSlot);
   if (error) return <TestList />;
   if (!data) return <div>loading...</div>;
   const days: Date[] = Array.from(
     new Set(
-      data.map((bid: BidResponse): Date => {
+      data.map((slot: SlotResponse): Date => {
         return {
-          year: bid.slot.start_time.year,
-          month: bid.slot.start_time.month,
-          day: bid.slot.start_time.day,
+          year: slot.start_time.year,
+          month: slot.start_time.month,
+          day: slot.start_time.day,
         };
       })
     )
@@ -42,11 +38,11 @@ export const BidList: React.FC<BidListProps> = (props:BidListProps) => {
           return (
             <ResponseColumn
               day={day}
-              data={data.filter((bid: BidResponse) => {
+              data={data.filter((slot: SlotResponse) => {
                 return (
-                  bid.slot.start_time.year === day.year &&
-                  bid.slot.start_time.month === day.month &&
-                  bid.slot.start_time.day === day.day
+                  slot.start_time.year === day.year &&
+                  slot.start_time.month === day.month &&
+                  slot.start_time.day === day.day
                 );
               })}
             />
