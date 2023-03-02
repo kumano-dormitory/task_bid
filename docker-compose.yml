@@ -25,9 +25,8 @@ services:
     image: "fastapi_starter:1.0.0"
     container_name: "fastapi_starter"
     depends_on:
-      - db
-   #   db:
-    #    condition: service_healthy
+      db:
+        condition: service_healthy
     build:
       context: ./docker/api
       dockerfile: Dockerfile

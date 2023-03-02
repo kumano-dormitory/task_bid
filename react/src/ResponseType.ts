@@ -1,5 +1,7 @@
+import { Fetcher } from "swr";
+import axios from "./axios";
 export type ResponseBase = {
-    in: string;
+    id: string;
     name: string;
   };
   export type Date = {
@@ -50,3 +52,19 @@ export type ResponseBase = {
     creater: CreaterResponse;
     task: TaskResponse;
   };
+
+export type TaskTagsResponse = {
+  id: string;
+  name: string;
+};
+
+export type AuthorityResponse = {
+  id: string;
+  name: string;
+  url: string;
+  method: "GET" | 'POST' | "PATCH" | "PUT" | "DELETE";
+}
+
+export const getData =(url: string) => {
+  return axios.get(url).then((response)=>response.data)
+}
