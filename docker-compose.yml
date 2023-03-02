@@ -28,8 +28,8 @@ services:
       db:
         condition: service_healthy
     build:
-      context: ./docker/api
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./docker/api/Dockerfile
     ports:
       - "8888:8000"
     volumes:

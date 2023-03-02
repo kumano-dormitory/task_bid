@@ -3,20 +3,23 @@ import { useContext } from "react";
 import axios from "./axios";
 import useSWR, { Fetcher } from "swr";
 import SlotCard from "./SlotCard";
-import {  List, ListSubheader } from "@mui/material";
+import { List, ListSubheader } from "@mui/material";
 import { ScrollMenu } from "react-horizontal-scrolling-menu";
 import { ResponseColumn } from "./ResponseColumn";
 import { Date, SlotResponse } from "./ResponseType";
 import { UserContext } from "./UserContext";
+import { isSlot } from "./ResponseCard";
 const getCreateSlot: Fetcher<SlotResponse[]> = (url: string) => {
   return axios.get(url).then((response) => response.data);
 };
 
 type CreateListProps = {
-  url:string,
-}
+  url: string;
+};
 
-export const CreateList: React.FC<CreateListProps> = (props:CreateListProps) => {
+export const CreateList: React.FC<CreateListProps> = (
+  props: CreateListProps
+) => {
   const { user } = useContext(UserContext);
   const { data, error } = useSWR(
     "/users/" + user.id + props.url,
@@ -24,35 +27,40 @@ export const CreateList: React.FC<CreateListProps> = (props:CreateListProps) => 
   );
   if (error) return <TestList />;
   if (!data) return <div>loading...</div>;
-  const days: Date[] = Array.from(
-    new Set(
-      data.map((slot: SlotResponse): Date => {
-        return {
-          year: slot.start_time.year,
-          month: slot.start_time.month,
-          day: slot.start_time.day,
-        };
-      })
-    )
-  );
+  const days: Date[] | null = isSlot(data[0])
+    ?  Array.from(
+        new Set(
+          data.map((slot: SlotResponse): Date => {
+            return {
+              year: slot.start_time.year,
+              month: slot.start_time.month,
+              day: slot.start_time.day,
+            };
+          })
+        )
+      ):null;
 
   return (
     <>
       <ScrollMenu>
-        {days.map((day: Date) => {
-          return (
-            <ResponseColumn
-              day={day}
-              data={data.filter((slot: SlotResponse) => {
-                return (
-                  slot.start_time.year === day.year &&
-                  slot.start_time.month === day.month &&
-                  slot.start_time.day === day.day
-                );
-              })}
-            />
-          );
-        })}
+        {days ? (
+          days.map((day: Date) => {
+            return (
+              <ResponseColumn
+                day={day}
+                data={data.filter((slot: SlotResponse) => {
+                  return (
+                    slot.start_time.year === day.year &&
+                    slot.start_time.month === day.month &&
+                    slot.start_time.day === day.day
+                  );
+                })}
+              />
+            );
+          })
+        ) : (
+          <ResponseColumn day={null} data={data} />
+        )}
       </ScrollMenu>
     </>
   );

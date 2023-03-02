@@ -31,15 +31,17 @@ function getStyles(name: string, personName: readonly string[], theme: Theme) {
 
 type SimpleChoiceFieldProps = {
     url: string;
-    title: string;
+  title: string;
+  id: string[];
+  setData: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 export function SimpleChoiceField<T extends ResponseBase,>(props:SimpleChoiceFieldProps){
     const theme = useTheme();
-    const getTag: Fetcher<T[]> = getData
+    const getChoice: Fetcher<T[]> = getData
 
-  const [id, setID] = React.useState<string[]>([]);
-  const { data, error } = useSWR(props.url, getTag);
+  const [id, setID] = [props.id,props.setData];
+  const { data, error } = useSWR(props.url, getChoice);
   if (error) return <div>Loading Failed</div>;
   if (!data) return <div>There no Tags</div>;
   const handleChange = (event: SelectChangeEvent<typeof id>) => {

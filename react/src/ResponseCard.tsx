@@ -97,8 +97,8 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = (
   } else if (isTask(props.data)) {
     return (
       <Typography variant="body2" color="text.secondary" align="right">
-        最低限必要な人数:{props.data.min_woker_num}人 その中で必要な経験者の数:
-        {props.data.exp_woker_num}人 最大人数:{props.data.max_woker_num}人
+        最低限必要な人数:{props.data.min_worker_num}人 その中で必要な経験者の数:
+        {props.data.exp_worker_num}人 最大人数:{props.data.max_worker_num}人
       </Typography>
     );
   } else {
@@ -114,10 +114,10 @@ const isBid = (data: any): data is BidResponse => {
   return !!(data as BidResponse)?.buyout_point;
 };
 
-const isSlot = (data: any): data is SlotResponse => {
+export const isSlot = (data: any): data is SlotResponse => {
   return !!(data as SlotResponse)?.start_time;
 };
 
-const isTask = (data: any): data is TaskResponse => {
-  return !!(data as TaskResponse)?.exp_woker_num;
+export const isTask = (data: any): data is TaskResponse => {
+  return !!(data as TaskResponse)?.exp_worker_num;
 };

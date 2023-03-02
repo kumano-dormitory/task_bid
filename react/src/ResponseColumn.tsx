@@ -3,7 +3,7 @@ import {Date, BidResponse, SlotResponse, TaskResponse } from "./ResponseType";
 import { List, ListSubheader } from "@mui/material";
 import { ResponseCard } from "./ResponseCard";
 type ResponseColumnProps = {
-  day: Date;
+  day: Date|null;
   data: BidResponse[] | SlotResponse[] | TaskResponse[];
 };
 

@@ -3,35 +3,34 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import { MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import axios from "./axios";
+import useSWR, { Fetcher } from "swr";
 import { SimpleChoiceField } from "./SimpleChoiceField";
 const theme = createTheme();
 
-export const TaskForm = () => {
-  const navigate = useNavigate();
-  const [tag_id, setTagID] = React.useState<string[]>([])
-  const [auth_id,setAuthID ] =React.useState<string[]>([])
 
+const method=["GET","POST","PUT","PATCH","DELETE"]
+
+export const AuthorityForm = () => {
+  const navigate = useNavigate();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     axios
-      .post("/tasks/", {
+      .post("/authority/", {
         name: data.get("name"),
-        detail: data.get("detail"),
-        max_woker_num: data.get("max_woker_num"),
-        min_woker_num: data.get("min_woker_num"),
-        exp_woker_num: data.get("exp_woker_num"),
-        tag: tag_id,
-        authority: auth_id,
+          url: data.get('url'),
+        method:data.get("method")
 
       })
       .then((response) => {
@@ -59,7 +58,7 @@ export const TaskForm = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            タスク新規作成
+            権限作成
           </Typography>
           <Box
             component="form"
@@ -80,54 +79,30 @@ export const TaskForm = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  name="detail"
-                  maxRows={10}
+              <TextField
+                  autoComplete="given-name"
+                  name="url"
                   required
-                  id="detail"
-                  label="説明"
                   fullWidth
-                  margin="normal"
-                  multiline
-                  variant="outlined"
-                  placeholder="400字以内"
+                  id="url"
+                  label="URL"
+                  autoFocus
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  id="max_woker_num"
-                  name="max_woker_num"
-                  inputProps={{ min: "1", step: "1" }}
-                  label="最大人数"
-                  defaultValue="1"
-                  type="number"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="min_woker_num"
-                  name="min_woker_num"
-                  inputProps={{ min: "1", step: "1" }}
-                  label="最小人数"
-                  defaultValue="1"
-                  type="number"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="exp_woker_num"
-                  name="exp_woker_num"
-                  inputProps={{ min: "0", step: "1" }}
-                  label="必要な経験者の人数"
-                  defaultValue="1"
-                  type="number"
-                />
-              </Grid>
-              <Grid>
-                <SimpleChoiceField url="/tags" title="タグ" id={tag_id} setData={setTagID} />
-              </Grid>
-              <Grid>
-                <SimpleChoiceField url="/authority" title="権限" id={auth_id} setData={setAuthID}/>
+                  id="method"
+                  name="method"
+                  select
+                  label="Method"
+                  defaultValue="GET"
+                >
+                  {method.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </Grid>
             </Grid>
             <Button
@@ -136,7 +111,7 @@ export const TaskForm = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              新規作成
+              Sign Up
             </Button>
           </Box>
         </Box>
