@@ -3,7 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -12,24 +11,22 @@ import Container from "@mui/material/Container";
 import { MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import axios from "./axios";
-import { useState } from "react";
+import axios from "../../axios";
 const theme = createTheme();
 
-const blocks = ["A1", "A2", "A3", "A4", "B12", "B3", "B4", "C12", "C34"];
+const method = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 
-export const SlotForm = () => {
+export const AuthorityForm = () => {
   const navigate = useNavigate();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     axios
-      .post("/register", {
+      .post("/authority/", {
         name: data.get("name"),
-        password: data.get("password"),
-        block: data.get("block"),
-        room_number: data.get("room_number"),
+        url: data.get("url"),
+        method: data.get("method"),
       })
       .then((response) => {
         console.log(response);
@@ -56,7 +53,7 @@ export const SlotForm = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            仕事を新規募集
+            権限作成
           </Typography>
           <Box
             component="form"
@@ -76,32 +73,32 @@ export const SlotForm = () => {
                   autoFocus
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <TextField
+                  autoComplete="given-name"
+                  name="url"
                   required
                   fullWidth
-                  id="room_number"
-                  label="部屋番号"
-                  name="room_number"
-                  autoComplete="room_number"
+                  id="url"
+                  label="URL"
+                  autoFocus
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  id="block"
-                  name="block"
+                  id="method"
+                  name="method"
                   select
-                  label="Block"
-                  defaultValue="A1"
+                  label="Method"
+                  defaultValue="GET"
                 >
-                  {blocks.map((option) => (
+                  {method.map((option) => (
                     <MenuItem key={option} value={option}>
                       {option}
                     </MenuItem>
                   ))}
                 </TextField>
               </Grid>
-              
             </Grid>
             <Button
               type="submit"
@@ -111,13 +108,6 @@ export const SlotForm = () => {
             >
               Sign Up
             </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link onClick={() => navigate("/login")} variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
           </Box>
         </Box>
       </Container>

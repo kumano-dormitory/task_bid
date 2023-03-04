@@ -10,33 +10,52 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import axios from "./axios";
-import { SimpleChoiceField } from "./SimpleChoiceField";
+import axios from "../../axios";
+import { DateSelect } from "../field/DateSelect";
+import { SingleChoiceField } from "../field/SIngleChoiceField";
+import dayjs, { Dayjs } from "dayjs";
 const theme = createTheme();
 
-export const TaskForm = () => {
+export const SlotForm = () => {
   const navigate = useNavigate();
-  const [tag_id, setTagID] = React.useState<string[]>([])
-  const [auth_id,setAuthID ] =React.useState<string[]>([])
+  const [starttime, setStarttime] = React.useState<Dayjs | null>(dayjs());
+  const [endtime, setEndtime] = React.useState<Dayjs | null>(dayjs());
 
+  const [task_id, setTask] = React.useState<string>("None");
+  if (!starttime) return <div>Loading</div>;
+  if (!endtime) return <div>Loading</div>;
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     axios
-      .post("/tasks/", {
+      .post("/slots/", {
         name: data.get("name"),
-        detail: data.get("detail"),
-        max_woker_num: data.get("max_woker_num"),
-        min_woker_num: data.get("min_woker_num"),
-        exp_woker_num: data.get("exp_woker_num"),
-        tag: tag_id,
-        authority: auth_id,
-
+        start_time: {
+          year: starttime.get("year"),
+          month: starttime.get("month")+1,
+          day: starttime.get("date"),
+          hour: starttime.get("hour"),
+          minute: starttime.get("minute"),
+        },
+        end_time: {
+          year: endtime.get("year"),
+          month: endtime.get("month")+1,
+          day: endtime.get("date"),
+          hour: endtime.get("hour"),
+          minute: endtime.get("minute"),
+        },
+        task: task_id,
       })
       .then((response) => {
         console.log(response);
-        navigate("/login");
+        navigate("/newbid", {
+          state: {
+            slot_id: response.data.id,
+            name: response.data.name,
+            start_time: response.data.start_time,
+          },
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -59,7 +78,7 @@ export const TaskForm = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            タスク新規作成
+            仕事を新規募集
           </Typography>
           <Box
             component="form"
@@ -79,55 +98,28 @@ export const TaskForm = () => {
                   autoFocus
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="detail"
-                  maxRows={10}
-                  required
-                  id="detail"
-                  label="説明"
-                  fullWidth
-                  margin="normal"
-                  multiline
-                  variant="outlined"
-                  placeholder="400字以内"
+              <Grid item xs={12} sm={6}>
+                <DateSelect
+                  title="集合時刻"
+                  date={starttime}
+                  setValue={setStarttime}
+                  setOther={{ setOther: setEndtime, timedelta:1,unit:"h"}}
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  id="max_woker_num"
-                  name="max_woker_num"
-                  inputProps={{ min: "1", step: "1" }}
-                  label="最大人数"
-                  defaultValue="1"
-                  type="number"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="min_woker_num"
-                  name="min_woker_num"
-                  inputProps={{ min: "1", step: "1" }}
-                  label="最小人数"
-                  defaultValue="1"
-                  type="number"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="exp_woker_num"
-                  name="exp_woker_num"
-                  inputProps={{ min: "0", step: "1" }}
-                  label="必要な経験者の人数"
-                  defaultValue="1"
-                  type="number"
+                <DateSelect
+                  title="終了予定時刻"
+                  date={endtime}
+                  setValue={setEndtime}
                 />
               </Grid>
               <Grid>
-                <SimpleChoiceField url="/tags" title="タグ" id={tag_id} setData={setTagID} />
-              </Grid>
-              <Grid>
-                <SimpleChoiceField url="/authority" title="権限" id={auth_id} setData={setAuthID}/>
+                <SingleChoiceField
+                  url="/tasks/"
+                  title="タスク"
+                  id={task_id}
+                  setData={setTask}
+                />
               </Grid>
             </Grid>
             <Button
@@ -136,7 +128,7 @@ export const TaskForm = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              新規作成
+              募集をかける
             </Button>
           </Box>
         </Box>

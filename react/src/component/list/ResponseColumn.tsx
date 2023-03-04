@@ -1,9 +1,14 @@
 import React from "react";
-import {Date, BidResponse, SlotResponse, TaskResponse } from "./ResponseType";
+import {
+  Date,
+  BidResponse,
+  SlotResponse,
+  TaskResponse,
+} from "../../ResponseType";
 import { List, ListSubheader } from "@mui/material";
-import { ResponseCard } from "./ResponseCard";
+import { ResponseCard } from "../field/ResponseCard";
 type ResponseColumnProps = {
-  day: Date|null;
+  day: Date | null;
   data: BidResponse[] | SlotResponse[] | TaskResponse[];
 };
 

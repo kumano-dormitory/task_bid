@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import axios from "./axios";
+import axios from "../../axios";
 function Copyright(props: any) {
   return (
     <Typography
@@ -39,13 +39,12 @@ export const Login = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    axios
-      ({
-        method: "post",
-        url: "/login",
-        data:{username:data.get('username'),password:data.get('password')} ,
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+    axios({
+      method: "post",
+      url: "/login",
+      data: { username: data.get("username"), password: data.get("password") },
+      headers: { "Content-Type": "multipart/form-data" },
+    })
       .then((response) => {
         localStorage.setItem("access_token", response.data.access_token);
         navigate("/bidpage");

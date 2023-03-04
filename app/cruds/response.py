@@ -83,7 +83,9 @@ def bids_response(bids:list[Bid]):
 def bidder_response(bidder:Bidder):
     response={
         "bid_id":bidder.bid_id,
+        "bid":bidder.bid.name,
         "user_id":bidder.user_id,
+        'user':bidder.user.name,
         "point":bidder.point
     }
     return response

@@ -66,7 +66,7 @@ def bid_all(db:Session):
     return respone_bids
 
 
-def bid_user_bidable(user:User,db:Session):
+def bid_user_bidable(db:Session):
     opening_bids=db.execute(select(Bid).filter(Bid.open_time<datetime.datetime.now(),Bid.close_time>datetime.datetime.now())).scalars().all()
     return bids_response(opening_bids)
 
@@ -102,31 +102,6 @@ def bid_tender(bid_id:str,tender_point:int,user,db:Session):
     
     bid=db.get(Bid,bid_id)
     task=bid.slot.task
-    if bid.is_complete:
-        slot=bid.slot
-        if task in user.exp_task:
-            if len(slot.assignees)>=task.min_woker_num:
-                raise HTTPException(
-                    status_code=status.HTTP_405_METHOD_NOT_ALLOWED
-                )
-            bidder=Bidder(point=tender_point)
-            bidder.user=user
-            bid.bidder.append(bidder)
-            slot.assignees.append(user)
-            db.commit()
-            return bidder_response(bidder)
-        else:
-            inexp_assignees=[user for user in slot.assignees if task not in user.exp_task]
-            if len(inexp_assignees)>=task.min_woker_num-task.exp_woker_num:
-                raise  HTTPException(
-                    status_code=status.HTTP_405_METHOD_NOT_ALLOWED
-                )
-            bidder=Bidder(point=tender_point)
-            bidder.user=user
-            bid.bidder.append(bidder)
-            slot.assignees.append(user)
-            db.commit()
-            return bidder_response(bidder)
     
     if task in user.exp_task:
         bidder=Bidder(point=tender_point)
@@ -140,6 +115,36 @@ def bid_tender(bid_id:str,tender_point:int,user,db:Session):
     db.commit()
     return bidder_response(bidder)
 
+def bid_tenderlack(bid_id:str,user:User,db:Session):
+    bid=db.get(Bid,bid_id)
+    task=bid.slot.task
+    slot=bid.slot
+    bidder=bid.bidder
+    if task in user.exp_task:
+        if len(slot.assignees)>=task.min_woker_num:
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        
+        bidder=Bidder(point=task.min_woker_num-1)
+        bidder.user=user
+        bid.bidder.append(bidder)
+        slot.assignees.append(user)
+        db.commit()
+        return bidder_response(bidder)
+    else:
+        inexp_assignees=[user for user in slot.assignees if task not in user.exp_task]
+        if len(inexp_assignees)>=task.min_woker_num-task.exp_woker_num:
+            raise  HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        bidder=Bidder(point=task.min_woker_num-1)
+        bidder.user=user
+        bid.bidder.append(bidder)
+        slot.assignees.append(user)
+        db.commit()
+        return bidder_response(bidder)
+        
 
 def bid_close(bid_id:str,db:Session):
     bid=db.get(Bid,bid_id)

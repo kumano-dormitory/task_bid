@@ -8,7 +8,7 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
 import useSWR, { Fetcher } from "swr";
-import {ResponseBase, getData } from "./ResponseType";
+import { ResponseBase, getData } from "../../ResponseType";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -30,17 +30,19 @@ function getStyles(name: string, personName: readonly string[], theme: Theme) {
 }
 
 type SimpleChoiceFieldProps = {
-    url: string;
+  url: string;
   title: string;
   id: string[];
-  setData: React.Dispatch<React.SetStateAction<string[]>>
-}
+  setData: React.Dispatch<React.SetStateAction<string[]>>;
+};
 
-export function SimpleChoiceField<T extends ResponseBase,>(props:SimpleChoiceFieldProps){
-    const theme = useTheme();
-    const getChoice: Fetcher<T[]> = getData
+export function SimpleChoiceField<T extends ResponseBase>(
+  props: SimpleChoiceFieldProps
+) {
+  const theme = useTheme();
+  const getChoice: Fetcher<T[]> = getData;
 
-  const [id, setID] = [props.id,props.setData];
+  const [id, setID] = [props.id, props.setData];
   const { data, error } = useSWR(props.url, getChoice);
   if (error) return <div>Loading Failed</div>;
   if (!data) return <div>There no Tags</div>;
@@ -57,14 +59,16 @@ export function SimpleChoiceField<T extends ResponseBase,>(props:SimpleChoiceFie
   return (
     <div>
       <FormControl sx={{ m: 1, width: 300 }}>
-              <InputLabel id="demo-multiple-chip-label">{props.title}</InputLabel>
+        <InputLabel id="demo-multiple-chip-label">{props.title}</InputLabel>
         <Select
           labelId="demo-multiple-chip-label"
           id="demo-multiple-chip"
           multiple
           value={id}
           onChange={handleChange}
-          input={<OutlinedInput id="select-multiple-chip" label={props.title} />}
+          input={
+            <OutlinedInput id="select-multiple-chip" label={props.title} />
+          }
           renderValue={(selected) => (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
               {selected.map((value) => {
@@ -88,4 +92,4 @@ export function SimpleChoiceField<T extends ResponseBase,>(props:SimpleChoiceFie
       </FormControl>
     </div>
   );
-};
+}

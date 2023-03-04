@@ -14,7 +14,7 @@ type CreaterResponse = ResponseBase & {
   room_number: string;
 };
 
-type Datetime = {
+export type Datetime = {
   year: number;
   month: number;
   day: number;

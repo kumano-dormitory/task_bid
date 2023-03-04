@@ -4,13 +4,16 @@ from app.models.models import Task,TaskTag
 from app.schemas.task import TaskCreate,TaskUpdate
 from app.schemas.users import User
 from sqlalchemy import update
-from sqlalchemy.orm import Session
-from sqlalchemy.future import select
-from app.cruds.response import task_response
+from sqlalchemy.orm import Session,joinedload
+from sqlalchemy.future import select 
+from app.cruds.response import task_response,tasks_response
 
-async def task_all(db:Session):
-    items=await db.scalars(select(Task)).all()
-    return items
+def task_all(db:Session):
+    items=db.scalars(select(Task).options(
+    joinedload(Task.creater)
+  )
+).unique().all()
+    return tasks_response(items)
 
 
 async def task_get(name:str,db:Session):

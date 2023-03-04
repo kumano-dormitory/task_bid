@@ -3,37 +3,58 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import axios from "./axios";
-import { useState } from "react";
+import axios from "../../axios";
+import { DateSelect } from "../field/DateSelect";
+import dayjs, { Dayjs } from "dayjs";
+import { useLocation } from "react-router-dom";
+import { Datetime } from "../../ResponseType";
 const theme = createTheme();
 
-const blocks = ["A1", "A2", "A3", "A4", "B12", "B3", "B4", "C12", "C34"];
-
-export const Register = () => {
+export const BidForm: React.FC = () => {
   const navigate = useNavigate();
-  const [isMatch, setMatch] = useState(false);
+  const location = useLocation();
+  const [slot] = React.useState<{
+    slot_id: string;
+    name: string;
+    start_time: Datetime;
+  }>(location.state as { slot_id: string; name: string; start_time: Datetime });
+  const [opentime, setOpentime] = React.useState<Dayjs | null>(dayjs());
+  const start_time_string=`${slot.start_time.year}-${slot.start_time.month}-${slot.start_time.day}`
+  const [closetime, setClocetime] = React.useState<Dayjs | null>(dayjs(start_time_string).subtract(1,'d'));
+
+  if (!opentime) return <div>Loading</div>;
+  if (!closetime) return <div>Loading</div>;
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    if (data.get("password") !== data.get("repassword")) {
-      setMatch(true);
-      return;
-    }
+
     axios
-      .post("/register", {
+      .post("/bids/", {
         name: data.get("name"),
-        password: data.get("password"),
-        block: data.get("block"),
-        room_number: data.get("room_number"),
+        open_time: {
+          year: opentime.get("year"),
+          month: opentime.get("month")+1,
+          day: opentime.get("date"),
+          hour: opentime.get("hour"),
+          minute: opentime.get("minute"),
+        },
+        close_time: {
+          year: closetime.get("year"),
+          month: closetime.get("month")+1,
+          day: closetime.get("date"),
+          hour: closetime.get("hour"),
+          minute: closetime.get("minute"),
+        },
+        slot: slot.slot_id,
+        start_point: data.get("start_point"),
+        buyout_point: data.get("buyout_point"),
       })
       .then((response) => {
         console.log(response);
@@ -60,7 +81,7 @@ export const Register = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign up
+            募集内容
           </Typography>
           <Box
             component="form"
@@ -73,6 +94,7 @@ export const Register = () => {
                 <TextField
                   autoComplete="given-name"
                   name="name"
+                  defaultValue={`${slot.start_time.month}月${slot.start_time.day}日${slot.name}`}
                   required
                   fullWidth
                   id="name"
@@ -81,53 +103,42 @@ export const Register = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
+                <DateSelect
+                  title="募集開始時刻"
+                  date={opentime}
+                  setValue={setOpentime}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <DateSelect
+                  title="募集停止時刻"
+                  date={closetime}
+                  setValue={setClocetime}
+                />
+              </Grid>
+              <Grid>
+                <Typography component="h1" variant="h6">
+                  募集する仕事:{slot.name}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
                 <TextField
-                  required
-                  fullWidth
-                  id="room_number"
-                  label="部屋番号"
-                  name="room_number"
-                  autoComplete="room_number"
+                  id="start_point"
+                  name="start_point"
+                  inputProps={{ min: "1", step: "1" }}
+                  label="開始ポイント"
+                  defaultValue="10"
+                  type="number"
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  id="block"
-                  name="block"
-                  select
-                  label="Block"
-                  defaultValue="A1"
-                >
-                  {blocks.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  error={isMatch}
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  error={isMatch}
-                  name="repassword"
-                  label="Repeat your password"
-                  type="repassword"
-                  id="repassword"
-                  autoComplete="new-password"
-                  helperText={isMatch ? "Password not match" : ""}
+                  id="buyout_point"
+                  name="buyout_point"
+                  inputProps={{ min: "0", step: "1" }}
+                  label="即決価格"
+                  defaultValue="0"
+                  type="number"
                 />
               </Grid>
             </Grid>
@@ -137,15 +148,8 @@ export const Register = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign Up
+              作成完了
             </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link onClick={() => navigate("/login")} variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
           </Box>
         </Box>
       </Container>
