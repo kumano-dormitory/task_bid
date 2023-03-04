@@ -4,40 +4,11 @@ from app.models.models import User
 from app.schemas.bid import BidRequest
 from app.models.models import Bid,Bidder,Slot
 from sqlalchemy.orm import Session
-from app.cruds.user import creater_response,users_response
-from app.cruds.bidder import bidder_response
+from app.cruds.response import bids_response,bid_response,bidder_response
 from app.cruds.slot import slot_response
 import app.cruds.message as message
 from sqlalchemy.future import select
 
-def bid_response(bid:Bid):
-    response={
-        "id":bid.id,
-        "name":bid.name,
-        "open_time":{
-            "year":bid.open_time.year,
-            "month":bid.open_time.month,
-            "day":bid.open_time.day,
-            "hour":bid.open_time.hour,
-            "minute":bid.open_time.minute,
-        },
-        "close_time":{
-            "year":bid.close_time.year,
-            "month":bid.close_time.month,
-            "day":bid.close_time.day,
-            "hour":bid.close_time.hour,
-            "minute":bid.close_time.minute,
-        },
-        "slot":{
-            "id":bid.slot_id,
-            "name":bid.slot.name,
-        },
-        "start_point":bid.start_point,
-        "buyout_point":bid.buyout_point,
-        "is_complete":bid.is_complete,
-        "bidder":bid.bidder
-    }
-    return response    
 
 
 def bid_post(bid:BidRequest,db:Session,user:User):
@@ -61,47 +32,26 @@ def bid_post(bid:BidRequest,db:Session,user:User):
     return bid_response(bid)
 
 
-def bids_response(bids:list[Bid]):
-    respone_bids=[{
-        "id":bid.id,
-        "name":bid.name,
-        "open_time":{
-            "year":bid.open_time.year,
-            "month":bid.open_time.month,
-            "day":bid.open_time.day,
-            "hour":bid.open_time.hour,
-            "minute":bid.open_time.minute,
-        },
-        "close_time":{
-            "year":bid.close_time.year,
-            "month":bid.close_time.month,
-            "day":bid.close_time.day,
-            "hour":bid.close_time.hour,
-            "minute":bid.close_time.minute,
-        },
-        "slot":{
-            "id":bid.slot_id,
-            "name":bid.slot.name,
-            "start_time":{
-            "year":bid.slot.start_time.year,
-            "month":bid.slot.start_time.month,
-            "day":bid.slot.start_time.day,
-            "hour":bid.slot.start_time.hour,
-            "minute":bid.slot.start_time.minute,
-        },
-            "end_time":{
-            "year":bid.slot.end_time.year,
-            "month":bid.slot.end_time.month,
-            "day":bid.slot.end_time.day,
-            "hour":bid.slot.end_time.hour,
-            "minute":bid.slot.end_time.minute,
-        },
-        },
-        "start_point":bid.start_point,
-        "buyout_point":bid.buyout_point,
-        "is_complete":bid.is_complete,
-    } for bid in bids]
-    return respone_bids
+def bid_post_personal(bid:BidRequest,db:Session,user:User):
+    bid=Bid(name=bid.name,
+              open_time=datetime.datetime(bid.open_time.year,
+                                           bid.open_time.month,
+                                           bid.open_time.day,
+                                           bid.open_time.hour,
+                                           bid.open_time.minute),
+              close_time=datetime.datetime(bid.close_time.year,
+                                           bid.close_time.month,
+                                           bid.close_time.day,
+                                           bid.close_time.hour,
+                                           bid.close_time.minute),
+              start_point=bid.start_point,
+              buyout_point=bid.buyout_point,
+              slot_id=bid.slot)
+    db.add(bid)
+    user.point-=bid.buyout_point
+    db.commit()
+    db.refresh(bid)
+    return bid_response(bid)
 
 
 
@@ -116,7 +66,7 @@ def bid_all(db:Session):
     return respone_bids
 
 
-def bid_user_bidable(user:User,db:Session):
+def bid_user_bidable(db:Session):
     opening_bids=db.execute(select(Bid).filter(Bid.open_time<datetime.datetime.now(),Bid.close_time>datetime.datetime.now())).scalars().all()
     return bids_response(opening_bids)
 
@@ -152,31 +102,6 @@ def bid_tender(bid_id:str,tender_point:int,user,db:Session):
     
     bid=db.get(Bid,bid_id)
     task=bid.slot.task
-    if bid.is_complete:
-        slot=bid.slot
-        if task in user.exp_task:
-            if len(slot.assignees)>=task.min_woker_num:
-                raise HTTPException(
-                    status_code=status.HTTP_405_METHOD_NOT_ALLOWED
-                )
-            bidder=Bidder(point=tender_point)
-            bidder.user=user
-            bid.bidder.append(bidder)
-            slot.assignees.append(user)
-            db.commit()
-            return bidder_response(bidder)
-        else:
-            inexp_assignees=[user for user in slot.assignees if task not in user.exp_task]
-            if len(inexp_assignees)>=task.min_woker_num-task.exp_woker_num:
-                raise  HTTPException(
-                    status_code=status.HTTP_405_METHOD_NOT_ALLOWED
-                )
-            bidder=Bidder(point=tender_point)
-            bidder.user=user
-            bid.bidder.append(bidder)
-            slot.assignees.append(user)
-            db.commit()
-            return bidder_response(bidder)
     
     if task in user.exp_task:
         bidder=Bidder(point=tender_point)
@@ -190,6 +115,36 @@ def bid_tender(bid_id:str,tender_point:int,user,db:Session):
     db.commit()
     return bidder_response(bidder)
 
+def bid_tenderlack(bid_id:str,user:User,db:Session):
+    bid=db.get(Bid,bid_id)
+    task=bid.slot.task
+    slot=bid.slot
+    bidder=bid.bidder
+    if task in user.exp_task:
+        if len(slot.assignees)>=task.min_woker_num:
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        
+        bidder=Bidder(point=task.min_woker_num-1)
+        bidder.user=user
+        bid.bidder.append(bidder)
+        slot.assignees.append(user)
+        db.commit()
+        return bidder_response(bidder)
+    else:
+        inexp_assignees=[user for user in slot.assignees if task not in user.exp_task]
+        if len(inexp_assignees)>=task.min_woker_num-task.exp_woker_num:
+            raise  HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        bidder=Bidder(point=task.min_woker_num-1)
+        bidder.user=user
+        bid.bidder.append(bidder)
+        slot.assignees.append(user)
+        db.commit()
+        return bidder_response(bidder)
+        
 
 def bid_close(bid_id:str,db:Session):
     bid=db.get(Bid,bid_id)

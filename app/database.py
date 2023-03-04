@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine,types
 from sqlalchemy.orm import sessionmaker, scoped_session, DeclarativeBase
-from .env import DB_USER, DB_PASSWORD,  DB_NAME
+from app.env import DB_USER, DB_PASSWORD,  DB_NAME
 import uuid
 
 DATABASE = "postgresql+psycopg2://%s:%s@db:5432/%s" % (

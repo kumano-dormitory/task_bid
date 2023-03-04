@@ -5,7 +5,7 @@ from app.database import get_db
 from sqlalchemy.orm import Session
 from app.models.models import User,Bidder,Bid,Slot
 from app.schemas.users import UserBase,UserDisplay
-from app.schemas.slot import SlotRequest
+from app.schemas.slot import SlotRequest,SlotCancelRequest
 from app.router.auth import Token
 from app.cruds.auth import oauth2_scheme,get_current_active_user
 import app.cruds.slot as crud
@@ -21,18 +21,6 @@ async def slot_list(name:str|None=None,db:Session=Depends(get_db)):
         return slot
     slots=crud.slot_all(db)
     return slots
-    
-
-
-@router.get("/slots/{user_id}")
-async def slot_one():
-    pass
-
-
-@router.put("/slots/{user_id}")
-async def update_slot():
-    pass
-
 
 @router.post("/")
 async def slot_post(slot:SlotRequest,db:Session=Depends(get_db),user:User=Depends(get_current_active_user)):
@@ -41,9 +29,8 @@ async def slot_post(slot:SlotRequest,db:Session=Depends(get_db),user:User=Depend
 
 
 @router.post("/{slot_id}/cancel")
-async def slot_cancel(slot_id:str,user:User=Depends(get_current_active_user) ,db:Session=Depends(get_db)):
-    
-    slot=crud.slot_cancel(slot_id,user.id,db)
+async def slot_cancel(slot_id:str,request:SlotCancelRequest,user:User=Depends(get_current_active_user) , db:Session=Depends(get_db)):
+    slot=crud.slot_cancel(slot_id,user,request.premire_point,db)
     return crud.slot_response(slot)
 
 @router.post('/{slot_id}/reassign')

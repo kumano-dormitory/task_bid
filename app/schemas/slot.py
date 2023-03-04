@@ -21,6 +21,8 @@ class DateTime(BaseModel):
     hour:int
     minute:int
 
+class SlotCancelRequest(BaseModel):
+    premire_point:int
 
 class SlotRequest(BaseModel):
     name:str

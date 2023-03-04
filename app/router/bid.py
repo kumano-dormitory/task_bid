@@ -7,6 +7,7 @@ from app.database import get_db
 from app.cruds.auth import get_current_active_user
 import app.cruds.bid as crud
 import app.cruds.slot as crudslot
+from app.cruds import auth
 from  sqlalchemy.future import select
 router=APIRouter()
 
@@ -20,12 +21,22 @@ async def bid_get(name:str|None=None,db:Session=Depends(get_db)):
     
 @router.post("/")
 async def bid_post(bid:BidRequest,db:Session=Depends(get_db),user:User=Depends(get_current_active_user)):
-    response=crud.bid_post(bid,db,user)
-    return response
+    if auth.check_authority(user,'POST','/bids/'):
+        response=crud.bid_post(bid,db,user)
+        return response
+    elif bid.buyout_point==0:
+        response=crud.bid_post(bid,db,user)
+        return response
+
+@router.post('/personal')
+async def bid_post_personal(bid:BidRequest,db:Session=Depends(get_db),user:User=Depends(get_current_active_user)):
+    if auth.check_authority(user,'POST','/bids/personal'):
+        response=crud.bid_post_personal(bid,db,user)
+        return response
 
 @router.get('/open')
-async def bid_user_bidable(user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):
-    response=crud.bid_user_bidable(user,db)
+async def bid_user_bidable(db:Session=Depends(get_db)):
+    response=crud.bid_user_bidable(db)
     return response
 
 
@@ -42,11 +53,29 @@ async def bid_exp_lacking(user:User=Depends(get_current_active_user),db:Session=
 @router.post("/{bid_id}/tender")
 async def bid_tender(bid_id:str,request:TenderRequest,current_user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):
     bid=db.get(Bid,bid_id)
+    if bid.is_complete:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND
+        )
     if not bid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
         )
     response=crud.bid_tender(bid_id,request.tender_point,current_user,db)
+    return response
+
+@router.post("/{bid_id}/tenderlack")
+async def bid_tenderlack(bid_id:str,current_user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):
+    bid=db.get(Bid,bid_id)
+    if not bid.is_complete:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    if not bid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    response=crud.bid_tenderlack(bid_id,current_user,db)
     return response
 
 @router.post("/{bid_id}/close")
@@ -59,19 +88,3 @@ async def bid_get_lack(db:Session=Depends(get_db)):
     bids=crud.bid_lack(db)
     return bids
 
-@router.post('/{bid_id}/lack')
-async def bid_fill_lack(bid_id:str,user:User=Depends(get_current_active_user),db:Session=Depends(get_db)):
-    bid=db.get(Bid,bid_id)
-    if not bid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    slot=bid.slot
-    assignees=slot.assignees
-    tender_point=0
-    if assignees==[]:
-        tender_point=bid.buyout_point
-    assigned_bidder_point=[bidder.point for bidder in bid.bidder if bidder.user in assignees]
-    tender_point=min(bid.start_point,max(assigned_bidder_point)+1)
-    response=crud.bid_tender(bid_id,tender_point,user,db)
-    return response

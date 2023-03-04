@@ -22,6 +22,15 @@ class UserBase(BaseModel):
     password:str
     block:Literal["A1","A2","A3","A4","B12","B3","B4","C12","C34"]
     room_number:str
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "恒川平",
+                "password": "testuser",
+                "block": "B3",
+                "room_number": 'B310',
+            }
+        }
 
 
 class User(UserBase):

@@ -4,30 +4,21 @@ from app.models.models import Task,TaskTag
 from app.schemas.task import TaskCreate,TaskUpdate
 from app.schemas.users import User
 from sqlalchemy import update
-from sqlalchemy.orm import Session
-from sqlalchemy.future import select
+from sqlalchemy.orm import Session,joinedload
+from sqlalchemy.future import select 
+from app.cruds.response import task_response,tasks_response
 
-async def task_all(db:Session):
-    items=await db.scalars(select(Task)).all()
-    return items
+def task_all(db:Session):
+    items=db.scalars(select(Task).options(
+    joinedload(Task.creater)
+  )
+).unique().all()
+    return tasks_response(items)
 
 
 async def task_get(name:str,db:Session):
     item=db.scalars(select(Task).filter_by(name=name).limit(1)).first()
     return item
-
-def task_response(task:Task):
-    response_task={
-        "id":task.id,
-        "name":task.name,
-        "detail":task.detail,
-        "max_worker_num":task.max_woker_num,
-        "min_worker_num":task.min_woker_num,
-        "exp_worker_num":task.exp_woker_num,
-        "creater_id":task.creater_id,
-        "creater":task.creater.name
-    }
-    return response_task
 
 
 def task_post(task:TaskCreate,current_user:User,db:Session):

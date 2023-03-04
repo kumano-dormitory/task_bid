@@ -57,10 +57,19 @@ class Achivement(Base):
     user:Mapped[Optional[list["User"]]]=relationship(secondary=achivement_table, back_populates="achivement")
     
 
+class Method(str,enum.Enum):
+    GET='GET'
+    POST='POST'
+    PUT='PUT'
+    PATCH="PATCH"
+    DELETE='DELETE'
+
 class Authority(Base):
     __tablename__="authority"
     id:Mapped[uuid.UUID]=mapped_column(primary_key=True,default=uuid4)
-    name:Mapped[str]=mapped_column(String(30))
+    name:Mapped[str]=mapped_column(String(50))
+    url:Mapped[str]=mapped_column(String(30))
+    method:Mapped['Method']
     task:Mapped[Optional[list["Task"]]]=relationship(secondary=authority_table,back_populates="authority")
     
     

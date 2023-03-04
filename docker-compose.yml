@@ -25,12 +25,11 @@ services:
     image: "fastapi_starter:1.0.0"
     container_name: "fastapi_starter"
     depends_on:
-      - db
-   #   db:
-    #    condition: service_healthy
+      db:
+        condition: service_healthy
     build:
-      context: ./docker/api
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./docker/api/Dockerfile
     ports:
       - "8888:8000"
     volumes:
@@ -54,6 +53,8 @@ services:
     tty: true
     ports:
       - 5432:5432
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
     environment:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
@@ -67,3 +68,4 @@ services:
 
 volumes:
   react-data:
+  postgres_volume:
