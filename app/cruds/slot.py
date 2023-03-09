@@ -56,6 +56,10 @@ def slot_cancel(slot_id:str,user:User,premire_point:int ,db:Session):
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE
         )
+    if bidder.is_canceled:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT
+        )
     bidder.is_canceled=True
     bidder.point+=premire_point
     user.point-=premire_point

@@ -25,6 +25,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { SimpleChoiceField } from "./SimpleChoiceField";
 import { TabContext } from "../RecruitPage";
 import axios from "../../axios";
+import { useSnackbar } from "../Snackbar";
 type ResponseCardProps<T extends ResponseBase> = {
   data: T;
 };
@@ -142,6 +143,7 @@ const ResponseModalBase: React.FC<ResponseModalProps> = (
 };
 
 const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
+  const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -150,9 +152,11 @@ const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
         premire_point: data.get("premire_point"),
       })
       .then((response) => {
+        showSnackbar('更新成功','success')
         console.log(response);
       })
       .catch((err) => {
+        showSnackbar('更新失敗','error')
         console.log(err);
       });
   };
@@ -176,6 +180,7 @@ const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
 const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
+  const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -185,10 +190,12 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
         tender_point: data.get("tender_point"),
       })
       .then((response) => {
+        showSnackbar('更新成功','success')
         console.log(response);
         console.log(props.data.user_bidpoint)
       })
-      .catch((err) => {
+        .catch((err) => {
+          showSnackbar('更新失敗','error')
         console.log(err);
       });
     }else {
@@ -223,15 +230,18 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
 const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
+  const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios
       .post(`/bids/${props.data.id}/tenderlack`)
       .then((response) => {
+        showSnackbar('更新成功','success')
         console.log(response);
       })
       .catch((err) => {
+        showSnackbar('更新失敗','error')
         console.log(err);
       });
   };
@@ -246,15 +256,18 @@ const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
 const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
+  const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios
       .post(`/bids/${props.data.id}/tenderlack`)
       .then((response) => {
+        showSnackbar('更新成功','success')
         console.log(response);
       })
       .catch((err) => {
+        showSnackbar('更新失敗','error')
         console.log(err);
       });
   };
@@ -269,16 +282,19 @@ const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
 const ConvertModalField: React.FC<BidderModalProps> = (
   props: BidderModalProps
 ) => {
+  const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     axios
-      .post(`/bids/${props.data.id}/convert`, {
+      .patch(`/bids/${props.data.id}/convert`, {
         user_id: props.data.user_id,
       })
       .then((response) => {
+        showSnackbar('更新成功','success')
         console.log(response);
       })
       .catch((err) => {
+        showSnackbar('更新失敗','error')
         console.log(err);
       });
   };
@@ -294,14 +310,17 @@ const ConvertModalField: React.FC<BidderModalProps> = (
 const CheckWorkModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   props: ResponseCardProps<SlotResponse>
 ) => {
+  const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     axios
       .post(`/slots/${props.data.id}/complete`)
       .then((response) => {
+        showSnackbar('更新成功','success')
         console.log(response);
       })
       .catch((err) => {
+        showSnackbar('更新失敗','error')
         console.log(err);
       });
   };
@@ -317,6 +336,7 @@ const CheckWorkModalField: React.FC<ResponseCardProps<SlotResponse>> = (
 const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   props: ResponseCardProps<SlotResponse>
 ) => {
+  const {showSnackbar}=useSnackbar()
   const start_time_string = `${props.data.start_time.year}-${props.data.start_time.month}-${props.data.start_time.day}`;
   const end_time_string = `${props.data.end_time.year}-${props.data.end_time.month}-${props.data.end_time.day}`;
   const [starttime, setStarttime] = React.useState<Dayjs | null>(
@@ -354,8 +374,10 @@ const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
       })
       .then((response) => {
         console.log(response);
+        showSnackbar('更新成功','success')
       })
       .catch((err) => {
+        showSnackbar('更新失敗','error')
         console.log(err);
       });
   };
@@ -408,6 +430,7 @@ const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
 const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
   props: ResponseCardProps<TaskResponse>
 ) => {
+  const {showSnackbar}=useSnackbar()
   const [tag_id, setTagID] = React.useState<string[]>([]);
   const [auth_id, setAuthID] = React.useState<string[]>([]);
 
@@ -427,10 +450,12 @@ const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
       })
       .then((response) => {
         console.log(response);
+        showSnackbar('更新成功','success')
 
 
       })
       .catch((err) => {
+        showSnackbar('更新失敗','error')
         console.log(err);
       });
   };

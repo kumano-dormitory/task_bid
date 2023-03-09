@@ -231,7 +231,8 @@ def assignee_convert(user_id:str,bid_id:str,request_user:User,db:Session):
         )
     if not bidder.is_canceled:
         raise HTTPException(
-            status_code=status.HTTP_405_METHOD_NOT_ALLOWED
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail=f'bidder.is_canceled is{bidder.is_canceled}',
         )
     bidder.user=request_user
     bidder.is_canceled=False
