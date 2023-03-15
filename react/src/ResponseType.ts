@@ -1,5 +1,5 @@
 import axios from "./axios";
-
+import { Fetcher } from 'swr';
 export type ListProps = {
   url: string;
 }
@@ -76,6 +76,12 @@ export type AuthorityResponse = {
   method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 };
 
+export type TemplateResponse = {
+  id: string,
+  name: string,
+  slots:SlotResponse[]
+}
 export const getData = (url: string) => {
   return axios.get(url).then((response) => response.data);
 };
+

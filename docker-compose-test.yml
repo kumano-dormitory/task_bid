@@ -25,7 +25,7 @@ services:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
     env_file:
-      - .env.test
+      - .env.development
   testdb:
     image: "fastapi_testdb"
     container_name: "fastapi_testdb"
@@ -42,7 +42,7 @@ services:
       APP_ENV: "development"
       TZ: "Asia/Tokyo"
     env_file:
-      - .env.test
+      - .env.development
 networks:
   default:
     external:

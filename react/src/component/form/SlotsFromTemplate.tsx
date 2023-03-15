@@ -11,29 +11,50 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import axios from "../../axios";
-import { SimpleChoiceField } from "../field/SimpleChoiceField";
-
+import { useLocation} from "react-router-dom";
+import { DateMultiSelect } from "../field/DateMultiSelect";
+import { Datedata } from "../field/DateMultiSelect";
+import { useSnackbar } from "../Snackbar";
+import { getData } from "../../ResponseType";
+import useSWR from 'swr';
 const theme = createTheme();
 
-export const TemplateForm = () => {
+export const SlotFromTemplate = () => {
   const navigate = useNavigate();
-  const [slots_id, setSlotID] = React.useState<string[]>([]);
-
+  const [days, setDays] = React.useState<Datedata[]>([]);
+  const location = useLocation();
+  const [template] = React.useState<{
+    template_id: string;
+  }>(location.state as { template_id: string;});
+  const { data, error } = useSWR(`/templates/${template.template_id}`, getData)
+  const {showSnackbar}=useSnackbar()
+  if (!data) return <div>Loading...</div>
+  if (error) return <div>Loading Failed</div>
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-
+    
     axios
-      .post("/templates/", {
-        name: data.get("name"),
-        slots: slots_id
+      .post(`/templates/${template.template_id}/generate`, {
+        first_days: days.map((day) => {
+          return {
+            year: day.date.get("year"),
+            month: day.date.get("month") + 1,
+            day: day.date.get("date"),
+          };
+        }),
+        start_point: data.get("start_point"),
+        buyout_point: data.get("buyout_point"),
       })
       .then((response) => {
         console.log(response);
-        navigate("/bidpage");
+        navigate("/bidpage/");
+        showSnackbar('作成成功','success')
       })
       .catch((err) => {
         console.log(err);
+        showSnackbar('作成失敗','error')
+
       });
   };
 
@@ -41,6 +62,7 @@ export const TemplateForm = () => {
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
+
         <Box
           sx={{
             marginTop: 8,
@@ -53,7 +75,7 @@ export const TemplateForm = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-          テンプレートを新規作成
+            { data.name}からシフトを作成
           </Typography>
           <Box
             component="form"
@@ -62,24 +84,28 @@ export const TemplateForm = () => {
             sx={{ mt: 3 }}
           >
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <TextField
-                  autoComplete="given-name"
-                  name="name"
-                  required
-                  fullWidth
-                  id="name"
-                  label="名前"
-                  autoFocus
+                  id="start_point"
+                  name="start_point"
+                  inputProps={{ min: "1", step: "1" }}
+                  label="開始ポイント"
+                  defaultValue="10"
+                  type="number"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  id="buyout_point"
+                  name="buyout_point"
+                  inputProps={{ min: "0", step: "1" }}
+                  label="即決価格"
+                  defaultValue="0"
+                  type="number"
                 />
               </Grid>
               <Grid>
-                <SimpleChoiceField
-                  url="/slots/"
-                  title="仕事"
-                  id={slots_id}
-                  setData={setSlotID}
-                />
+                <DateMultiSelect days={days} setDays={setDays} />
               </Grid>
             </Grid>
             <Button
@@ -88,7 +114,7 @@ export const TemplateForm = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              新規作成
+              募集をかける
             </Button>
           </Box>
         </Box>

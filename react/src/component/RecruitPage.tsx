@@ -99,6 +99,12 @@ export const BidPage: React.FC = () => {
               navigate("/newslot");
             }}
           />
+          <CreateCard
+            text="テンプレートを作成"
+            onClick={() => {
+              navigate("/newtemplate");
+            }}
+          />
           <DataList url={"/users/" + user.id + "/createslot"} />
         </TabPanel>
         <TabPanel value={value} index={7}>
@@ -111,7 +117,7 @@ export const BidPage: React.FC = () => {
           <DataList url={"/users/" + user.id + "/createtask"} />
         </TabPanel>
         <TabPanel value={value} index={8}>
-          <AdminPage/>
+          <AdminPage />
         </TabPanel>
       </Box>
     </TabContext.Provider>

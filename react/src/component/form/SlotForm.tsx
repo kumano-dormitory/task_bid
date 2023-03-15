@@ -14,6 +14,8 @@ import axios from "../../axios";
 import { DateSelect } from "../field/DateSelect";
 import { SingleChoiceField } from "../field/SIngleChoiceField";
 import dayjs, { Dayjs } from "dayjs";
+import Link from "@mui/material/Link";
+
 const theme = createTheme();
 
 export const SlotForm = () => {
@@ -130,6 +132,13 @@ export const SlotForm = () => {
             >
               募集をかける
             </Button>
+            <Grid container>
+              <Grid item>
+                <Link onClick={() => navigate("/selecttemplate")} variant="body2">
+                  {"テンプレートからシフトを作成"}
+                </Link>
+              </Grid>
+            </Grid>
           </Box>
         </Box>
       </Container>

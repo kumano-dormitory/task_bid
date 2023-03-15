@@ -2,9 +2,10 @@ import datetime
 from fastapi import FastAPI, HTTPException, status
 from app.models.models import User
 from app.schemas.slot import SlotRequest
-from app.models.models import Slot, Bidder, Bid, Task
+from app.models.models import Slot, Bidder, Bid, Task,Template
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
+
 
 
 def bid_response(bid: Bid):
@@ -263,3 +264,19 @@ def users_response(users: list[User]):
         for user in users
     ]
     return response_users
+
+def template_response(template:Template):
+    response_template={
+        "id":template.id,
+        "name":template.name,
+        "slots":slots_response(template.slots)
+    }
+    return response_template
+
+def templates_response(templates:list[Template]):
+    response_templates=[{
+        "id":template.id,
+        "name":template.name,
+        "slots":slots_response(template.slots)
+    } for template in templates]
+    return response_templates

@@ -18,8 +18,7 @@ APP_ENV = os.environ.get('APP_ENV')
 
 DB_USER = os.environ.get('POSTGRES_USER')
 DB_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
-DB_HOST = os.environ.get('POSTGRES_HOST')
-DB_NAME = os.environ.get('POSTGRES_DATABASE')
+DB_NAME = os.environ.get('POSTGRES_DB')
 
 client=TestClient(app)
 
@@ -99,13 +98,12 @@ class TestingSession(Session):
 @pytest.fixture(scope="session",autouse=True)
 def test_db():
     print("test_db_called")
-    DATABASE = "postgresql://%s:%s@%s/%s" % (
+    DATABASE = "postgresql+psycopg2://%s:%s@testdb:5432/%s" % (
     DB_USER,
     DB_PASSWORD,
-    DB_HOST,
     DB_NAME,)
     print(DATABASE,"データベース")
-    engine = create_engine(DATABASE,echo=True)
+    engine = create_engine(DATABASE,echo=False)
     Base.metadata.drop_all(bind=engine) 
     Base.metadata.create_all(bind=engine)
     print("create_all_executed")

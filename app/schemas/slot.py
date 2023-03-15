@@ -31,7 +31,9 @@ class SlotRequest(BaseModel):
     task:str
     class Config:
         orm_mode=True
-    
+
+class SlotDeleteRequest(BaseModel):
+    slots_id:list[str]
     
 class Slot(BaseModel):
     id:UUID

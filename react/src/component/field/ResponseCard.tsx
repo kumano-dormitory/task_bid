@@ -34,12 +34,6 @@ type ResponseDisplayProps = {
   data: BidResponse | SlotResponse | TaskResponse | BidderResponse;
 };
 
-interface ModalData {
-  id: string;
-  name: string;
-  start_point?: number;
-  buyout_point?: number;
-}
 
 type ModalProps = {
   data: ResponseBase;
@@ -56,17 +50,6 @@ type ResponseModalProps = {
   data: BidResponse | SlotResponse | TaskResponse|BidderResponse;
 };
 
-const style = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
 
 export const ResponseCard: React.FC<
   ResponseCardProps<BidResponse | SlotResponse | TaskResponse|BidderResponse>
@@ -233,7 +216,6 @@ const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
   const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
     axios
       .post(`/bids/${props.data.id}/tenderlack`)
       .then((response) => {
@@ -259,7 +241,6 @@ const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
   const {showSnackbar}=useSnackbar()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
     axios
       .post(`/bids/${props.data.id}/tenderlack`)
       .then((response) => {
@@ -622,7 +603,7 @@ export const isSlot = (data: any): data is SlotResponse => {
 };
 
 export const isTask = (data: any): data is TaskResponse => {
-  return !!(data as TaskResponse)?.exp_worker_num;
+  return !!(data as TaskResponse)?.max_worker_num;
 };
 
 export const isBidder = (data: any): data is BidderResponse => {

@@ -24,8 +24,8 @@ tag_table = Table(
 template_table = Table(
     "template_table",
     Base.metadata,
-    Column("template", ForeignKey("template.id"), primary_key=True),
-    Column("slot", ForeignKey("slot.id"), primary_key=True),
+    Column("template", ForeignKey("template.id")),
+    Column("slot", ForeignKey("slot.id")),
 )
 
 
@@ -87,14 +87,14 @@ class Bid(Base):
     open_time: Mapped[datetime]
     close_time: Mapped[datetime]
     slot_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("slot.id", ondelete="CASCADE")
+        ForeignKey("slot.id", ondelete="SET NULL")
     )
     slot: Mapped["Slot"] = relationship(back_populates="bid")
     start_point: Mapped[int] = mapped_column(default=0)
     buyout_point: Mapped[int] = mapped_column(default=0)
     is_complete: Mapped[bool] = mapped_column(default=False)
     bidder: Mapped[Optional[list["Bidder"]]] = relationship(
-        back_populates="bid", cascade="all"
+        back_populates="bid", cascade="all,delete"
     )
 
 
@@ -124,13 +124,17 @@ class Slot(Base):
     creater_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("user.id", ondelete="SET NULL")
     )
-    creater: Mapped[Optional["User"]] = relationship(back_populates="create_slot")
+    creater: Mapped[Optional["User"]] = relationship(
+        back_populates="create_slot"
+    )
     task_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("task.id", ondelete="CASCADE")
     )
     task: Mapped["Task"] = relationship(back_populates="slot", uselist=False)
-    bid: Mapped[Optional["Bid"]] = relationship(back_populates="slot", uselist=False)
-    template: Mapped[list["Template"]] = relationship(
+    bid: Mapped[Optional["Bid"]] = relationship(
+        back_populates="slot", uselist=False,cascade="all,delete"
+    )
+    template: Mapped[list["Template"]|None] = relationship(
         secondary=template_table, back_populates="slots"
     )
 
@@ -143,8 +147,8 @@ class Task(Base):
     max_woker_num: Mapped[int] = mapped_column(default=1)  # 最大人数
     min_woker_num: Mapped[int] = mapped_column(default=1)  # 最少人数
     exp_woker_num: Mapped[int] = mapped_column(default=0)  # 必要な経験者の人数
-    slot: Mapped[Optional[list["Slot"]]] = relationship(
-        back_populates="task", cascade="all"
+    slot: Mapped[list["Slot"]|None] = relationship(
+        back_populates="task", cascade="all,delete"
     )
     expert: Mapped[Optional[list["User"]]] = relationship(
         secondary=experience_table, back_populates="exp_task"
@@ -152,7 +156,9 @@ class Task(Base):
     creater_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("user.id", ondelete="SET NULL")
     )
-    creater: Mapped[Optional["User"]] = relationship(back_populates="create_task")
+    creater: Mapped[Optional["User"]] = relationship(
+        back_populates="create_task"
+    )
     authority: Mapped[Optional[list["Authority"]]] = relationship(
         secondary=authority_table, back_populates="task"
     )
@@ -207,8 +213,12 @@ class User(Base):
     slots: Mapped[Optional[list["Slot"]]] = relationship(
         secondary=slots_table, back_populates="assignees"
     )
-    create_slot: Mapped[Optional[list["Slot"]]] = relationship(back_populates="creater")
-    create_task: Mapped[Optional[list["Task"]]] = relationship(back_populates="creater")
+    create_slot: Mapped[Optional[list["Slot"]]] = relationship(
+        back_populates="creater"
+    )
+    create_task: Mapped[Optional[list["Task"]]] = relationship(
+        back_populates="creater"
+    )
     point: Mapped[int] = mapped_column(default=0)
     bid: Mapped[Optional[list["Bidder"]]] = relationship(
         back_populates="user", cascade="all"
