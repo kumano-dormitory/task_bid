@@ -1,4 +1,8 @@
 import axios from "./axios";
+import { Fetcher } from 'swr';
+export type ListProps = {
+  url: string;
+}
 export type ResponseBase = {
   id: string;
   name: string;
@@ -43,7 +47,15 @@ export type BidResponse = ResponseBase & {
   start_point: number;
   buyout_point: number;
   is_complete: boolean;
+  user_bidpoint: number | 'notyet';
 };
+
+export type BidderResponse =ResponseBase& {
+  user_id: string;
+  user: string;
+  point: number;
+  is_canceled: boolean;
+}
 
 export type SlotResponse = ResponseBase & {
   start_time: Datetime;
@@ -64,6 +76,12 @@ export type AuthorityResponse = {
   method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 };
 
+export type TemplateResponse = {
+  id: string,
+  name: string,
+  slots:SlotResponse[]
+}
 export const getData = (url: string) => {
   return axios.get(url).then((response) => response.data);
 };
+

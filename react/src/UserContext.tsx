@@ -1,8 +1,7 @@
 import axios from "./axios";
-import React, { createContext, useContext } from "react";
+import React, { createContext } from "react";
 import useSWR, { Fetcher } from "swr";
 import { useNavigate } from "react-router-dom";
-import userEvent from "@testing-library/user-event";
 type User = {
   id: string;
   name: string;

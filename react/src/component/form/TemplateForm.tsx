@@ -11,53 +11,26 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import axios from "../../axios";
-import { DateSelect } from "../field/DateSelect";
-import { SingleChoiceField } from "../field/SIngleChoiceField";
-import dayjs, { Dayjs } from "dayjs";
-import Link from "@mui/material/Link";
+import { SimpleChoiceField } from "../field/SimpleChoiceField";
 
 const theme = createTheme();
 
-export const SlotForm = () => {
+export const TemplateForm = () => {
   const navigate = useNavigate();
-  const [starttime, setStarttime] = React.useState<Dayjs | null>(dayjs());
-  const [endtime, setEndtime] = React.useState<Dayjs | null>(dayjs());
+  const [slots_id, setSlotID] = React.useState<string[]>([]);
 
-  const [task_id, setTask] = React.useState<string>("None");
-  if (!starttime) return <div>Loading</div>;
-  if (!endtime) return <div>Loading</div>;
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
     axios
-      .post("/slots/", {
+      .post("/templates/", {
         name: data.get("name"),
-        start_time: {
-          year: starttime.get("year"),
-          month: starttime.get("month")+1,
-          day: starttime.get("date"),
-          hour: starttime.get("hour"),
-          minute: starttime.get("minute"),
-        },
-        end_time: {
-          year: endtime.get("year"),
-          month: endtime.get("month")+1,
-          day: endtime.get("date"),
-          hour: endtime.get("hour"),
-          minute: endtime.get("minute"),
-        },
-        task: task_id,
+        slots: slots_id
       })
       .then((response) => {
         console.log(response);
-        navigate("/newbid", {
-          state: {
-            slot_id: response.data.id,
-            name: response.data.name,
-            start_time: response.data.start_time,
-          },
-        });
+        navigate("/bidpage");
       })
       .catch((err) => {
         console.log(err);
@@ -80,7 +53,7 @@ export const SlotForm = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            仕事を新規募集
+          テンプレートを新規作成
           </Typography>
           <Box
             component="form"
@@ -100,27 +73,12 @@ export const SlotForm = () => {
                   autoFocus
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <DateSelect
-                  title="集合時刻"
-                  date={starttime}
-                  setValue={setStarttime}
-                  setOther={{ setOther: setEndtime, timedelta:1,unit:"h"}}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <DateSelect
-                  title="終了予定時刻"
-                  date={endtime}
-                  setValue={setEndtime}
-                />
-              </Grid>
               <Grid>
-                <SingleChoiceField
-                  url="/tasks/"
-                  title="タスク"
-                  id={task_id}
-                  setData={setTask}
+                <SimpleChoiceField
+                  url="/slots/"
+                  title="仕事"
+                  id={slots_id}
+                  setData={setSlotID}
                 />
               </Grid>
             </Grid>
@@ -130,15 +88,8 @@ export const SlotForm = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              募集をかける
+              新規作成
             </Button>
-            <Grid container>
-              <Grid item>
-                <Link onClick={() => navigate("/selecttemplate")} variant="body2">
-                  {"テンプレートからシフトを作成"}
-                </Link>
-              </Grid>
-            </Grid>
           </Box>
         </Box>
       </Container>

@@ -1,17 +1,42 @@
-from typing import Dict,TYPE_CHECKING
-from uuid import UUID
 from pydantic import BaseModel
-if TYPE_CHECKING:
-    from schemas.task import Slot
-
+from uuid import UUID
 
 class TemplateBase(BaseModel):
-    name:str
-    slots:list[Dict]=[]
-
-
-class Template(BaseModel):
     id:UUID
     class Config:
         orm_mode=True
-    
+        
+class Template(TemplateBase):
+    name:str
+    class Config:
+        orm_mode=True
+
+class TemplateDate(BaseModel):
+    year: int
+    month: int
+    day: int
+
+
+class TemplateCreate(BaseModel):
+    name: str
+    slots: list[str] = []
+
+
+class TemplateGenRequest(BaseModel):
+    first_day: TemplateDate
+    start_point: int
+    buyout_point: int
+
+    class Config:
+        orm_mode = True
+
+class TemplateBulkGenRequest(BaseModel):
+    first_days: list[TemplateDate]
+    start_point: int
+    buyout_point: int
+
+    class Config:
+        orm_mode = True
+        
+class TemplateSlotDeleteRequest(BaseModel):
+    slot_id:str
