@@ -30,8 +30,6 @@ def bid_response(bid: Bid):
             "id": bid.slot_id,
             "name": bid.slot.name,
         },
-        "start_point": bid.start_point,
-        "buyout_point": bid.buyout_point,
         "is_complete": bid.is_complete,
     }
     return response
@@ -74,8 +72,6 @@ def bids_response(bids: list[Bid]):
                     "minute": bid.slot.end_time.minute,
                 },
             },
-            "start_point": bid.start_point,
-            "buyout_point": bid.buyout_point,
             "is_complete": bid.is_complete,
         }
         for bid in bids
@@ -199,6 +195,8 @@ def task_response(task: Task):
         "max_worker_num": task.max_woker_num,
         "min_worker_num": task.min_woker_num,
         "exp_worker_num": task.exp_woker_num,
+        "start_point":task.start_point,
+        "buyout_point":task.buyout_point,
         "creater_id": task.creater_id,
         "creater": task.creater.name,
     }
@@ -214,6 +212,8 @@ def tasks_response(tasks: list[Task]):
             "max_worker_num": task.max_woker_num,
             "min_worker_num": task.min_woker_num,
             "exp_worker_num": task.exp_woker_num,
+            "start_point":task.start_point,
+            "buyout_point":task.buyout_point,
             "creater_id": task.creater_id,
             "creater": task.creater.name,
         }

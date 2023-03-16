@@ -50,8 +50,6 @@ def generate_slots_from_template(
             name=f"{generated_slot.start_time.month}月{generated_slot.start_time.day}日{slot.name}",
             open_time=generated_slot.start_time - datetime.timedelta(days=8),
             close_time=generated_slot.start_time - datetime.timedelta(days=2),
-            start_point=request.start_point,
-            buyout_point=request.buyout_point,
             slot=generated_slot,
         )
         db.add(generated_bid)
@@ -81,8 +79,6 @@ def bulk_generate_slots_from_template(
     for day in request.first_days:
         one_request=TemplateGenRequest(
             first_day=day,
-            start_point=request.start_point,
-            buyout_point=request.buyout_point
         )
         new_bid=generate_slots_from_template(latest_slot,slots,one_request,user,db)
         new_bids+=new_bid

@@ -31,7 +31,7 @@ def getbyid(bid_id: str, user: User, db: Session):
 
 
 def post(bid: BidRequest, db: Session, user: User):
-    bid = Bid(
+    new_bid = Bid(
         name=bid.name,
         open_time=datetime.datetime(
             bid.open_time.year,
@@ -47,18 +47,16 @@ def post(bid: BidRequest, db: Session, user: User):
             bid.close_time.hour,
             bid.close_time.minute,
         ),
-        start_point=bid.start_point,
-        buyout_point=bid.buyout_point,
         slot_id=bid.slot,
     )
-    db.add(bid)
+    db.add(new_bid)
     db.commit()
-    db.refresh(bid)
-    return bid_response(bid)
+    db.refresh(new_bid)
+    return bid_response(new_bid)
 
 
 def post_personal(bid: BidRequest, db: Session, user: User):
-    bid = Bid(
+    new_bid = Bid(
         name=bid.name,
         open_time=datetime.datetime(
             bid.open_time.year,
@@ -74,15 +72,13 @@ def post_personal(bid: BidRequest, db: Session, user: User):
             bid.close_time.hour,
             bid.close_time.minute,
         ),
-        start_point=bid.start_point,
-        buyout_point=bid.buyout_point,
         slot_id=bid.slot,
     )
-    db.add(bid)
-    user.point -= bid.buyout_point
+    db.add(new_bid)
+    user.point -= new_bid.slot.task.buyout_point
     db.commit()
-    db.refresh(bid)
-    return bid_response(bid)
+    db.refresh(new_bid)
+    return bid_response(new_bid)
 
 
 def all(db: Session):
@@ -92,7 +88,7 @@ def all(db: Session):
             "id": bid.id,
             "name": bid.name,
             "close_time": bid.close_time,
-            "start_point": bid.start_point,
+            "start_point": bid.slot.task.start_point,
         }
         for bid in items
     ]
@@ -164,7 +160,7 @@ def tender(bid_id: str, tender_point: int, user, db: Session):
         return bidder_response(bidder)
     if exist_bidder:
         return bidder_response(exist_bidder)        
-    bidder = Bidder(point=bid.buyout_point)
+    bidder = Bidder(point=task.buyout_point)
     bidder.user = user
     bid.bidder.append(bidder)
     db.commit()
@@ -180,7 +176,7 @@ def tenderlack(bid_id: str, user: User, db: Session):
         if len(slot.assignees) >= task.min_woker_num:
             raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        bidder = Bidder(point=bid.buyout_point - 1)
+        bidder = Bidder(point=task.buyout_point - 1)
         bidder.user = user
         bid.bidder.append(bidder)
         slot.assignees.append(user)
@@ -192,7 +188,7 @@ def tenderlack(bid_id: str, user: User, db: Session):
         ]
         if len(inexp_assignees) >= task.min_woker_num - task.exp_woker_num:
             raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
-        bidder = Bidder(point=bid.buyout_point - 1)
+        bidder = Bidder(point=task.buyout_point - 1)
         bidder.user = user
         bid.bidder.append(bidder)
         slot.assignees.append(user)
@@ -312,22 +308,6 @@ def assignee_convert(
     db.commit()
     return bidder_response(bidder)
 
-
-def patch_bidder_point(
-    bid_id: str, user: User, tender_point: int, db: Session
-):
-    bid = db.get(Bid, bid_id)
-    task = bid.slot.task
-    if not task in user.exp_task:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    bidder = db.scalars(
-        select(Bidder)
-        .filter(Bidder.bid_id == bid_id, Bidder.user_id == user.id)
-        .limit(1)
-    ).first()
-    bidder.point = tender_point
-    db.commit()
-    return bidder_response(bidder)
 
 
 def close_all_bid(db: Session):

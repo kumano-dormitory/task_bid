@@ -20,8 +20,7 @@ class BidBase(BaseModel):
     open_time:DateTime
     close_time:DateTime
     slot:Dict
-    start_point:int
-    buyout_point:int
+
     
 class Bid(BaseModel):
     id:UUID
@@ -35,8 +34,6 @@ class BidRequest(BaseModel):
     open_time:DateTime
     close_time:DateTime
     slot:UUID
-    start_point:int
-    buyout_point:int
     class Config:
         orm_mode=True
 

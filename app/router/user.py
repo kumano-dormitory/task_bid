@@ -22,7 +22,6 @@ async def user_get_by_name(
     users = crud.all(db)
     return users
 
-
 @router.get("/{user_id}", response_model=UserDisplay)
 async def user_one(
     user_id,
