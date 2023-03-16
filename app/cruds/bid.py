@@ -147,12 +147,23 @@ def lack(user: User, db: Session):
 def tender(bid_id: str, tender_point: int, user, db: Session):
     bid = db.get(Bid, bid_id)
     task = bid.slot.task
+    exist_bidder = db.scalars(
+        select(Bidder)
+        .filter(Bidder.user_id == user.id, Bidder.bid_id == bid_id)
+        .limit(1)
+    ).first()
     if task in user.exp_task:
+        if exist_bidder:  
+            exist_bidder.point=tender_point
+            db.commit()
+            return bidder_response(exist_bidder)
         bidder = Bidder(point=tender_point)
         bidder.user = user
         bid.bidder.append(bidder)
         db.commit()
         return bidder_response(bidder)
+    if exist_bidder:
+        return bidder_response(exist_bidder)        
     bidder = Bidder(point=bid.buyout_point)
     bidder.user = user
     bid.bidder.append(bidder)
@@ -320,13 +331,17 @@ def patch_bidder_point(
 
 
 def close_all_bid(db: Session):
-    bids = db.execute(
+    bids = (
+        db.execute(
             select(Bid).filter(Bid.close_time < datetime.datetime.now())
-        ).scalars().all()
-    
+        )
+        .scalars()
+        .all()
+    )
+
     closed_bid_id_list = []
     for bid in bids:
         response = close(bid.id, db)
-        if response!=None:
+        if response != None:
             closed_bid_id_list.append(response["id"])
     return closed_bid_id_list
