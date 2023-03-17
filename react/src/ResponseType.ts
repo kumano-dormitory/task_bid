@@ -36,6 +36,8 @@ export type TaskResponse = ResponseBase & {
   max_worker_num: number;
   min_worker_num: number;
   exp_worker_num: number;
+  start_point: number;
+  buyout_point: number;
   creater_id: string;
   creater: string;
 };

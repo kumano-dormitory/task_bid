@@ -26,14 +26,14 @@ import { SimpleChoiceField } from "./SimpleChoiceField";
 import { TabContext } from "../RecruitPage";
 import axios from "../../axios";
 import { useSnackbar } from "../Snackbar";
-type ResponseCardProps<T extends ResponseBase> = {
+import { ModalBase } from "../modal/ModalBase";
+export type ResponseCardProps<T extends ResponseBase> = {
   data: T;
 };
 
 type ResponseDisplayProps = {
   data: BidResponse | SlotResponse | TaskResponse | BidderResponse;
 };
-
 
 type ModalProps = {
   data: ResponseBase;
@@ -43,17 +43,16 @@ type BidderModalProps = {
   data: BidderResponse;
 };
 
-type ResponseModalProps = {
-  open: boolean;
-  handleClose: () => void;
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  data: BidResponse | SlotResponse | TaskResponse|BidderResponse;
-};
 
 
 export const ResponseCard: React.FC<
-  ResponseCardProps<BidResponse | SlotResponse | TaskResponse|BidderResponse>
-> = (props: ResponseCardProps<BidResponse | SlotResponse |TaskResponse|BidderResponse>) => {
+  ResponseCardProps<BidResponse | SlotResponse | TaskResponse | BidderResponse>
+> = (
+  props: ResponseCardProps<
+    BidResponse | SlotResponse | TaskResponse | BidderResponse
+  >
+) => {
+  const value = React.useContext(TabContext);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -74,31 +73,9 @@ export const ResponseCard: React.FC<
         <Button size="small">Share</Button>
         <Button size="small" onClick={handleOpen}>
           Open modal
-        </Button>
-        <ResponseModalBase
-          open={open}
-          handleClose={handleClose}
-          handleSubmit={(event) => {}}
-          data={props.data}
-        />
-      </CardActions>
-    </Card>
-  );
-};
-
-const ResponseModalBase: React.FC<ResponseModalProps> = (
-  props: ResponseModalProps
-) => {
-  const value = React.useContext(TabContext);
-  return (
-    <Dialog open={props.open} onClose={props.handleClose}>
-      <DialogTitle>Subscribe</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          To subscribe to this website, please enter your email address here. We
-          will send updates occasionally.
-        </DialogContentText>
-        {value === 0 && isSlot(props.data)? (
+        </Button> 
+        <ModalBase title={'詳細'} open={open} handleClose={handleClose}>
+        {value === 0 && isSlot(props.data) ? (
           <AssignModalField data={props.data} />
         ) : value === 1 && isBid(props.data) ? (
           <TenderModalField data={props.data} />
@@ -117,16 +94,15 @@ const ResponseModalBase: React.FC<ResponseModalProps> = (
         ) : (
           <div>Failed to load data</div>
         )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={props.handleClose}>Cancel</Button>
-      </DialogActions>
-    </Dialog>
+        </ModalBase>
+
+      </CardActions>
+    </Card>
   );
 };
 
 const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -135,11 +111,11 @@ const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
         premire_point: data.get("premire_point"),
       })
       .then((response) => {
-        showSnackbar('更新成功','success')
+        showSnackbar("更新成功", "success");
         console.log(response);
       })
       .catch((err) => {
-        showSnackbar('更新失敗','error')
+        showSnackbar("更新失敗", "error");
         console.log(err);
       });
   };
@@ -163,35 +139,36 @@ const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
 const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    if(props.data.user_bidpoint === 'notyet') {
+    if (props.data.user_bidpoint === "notyet") {
       axios
-      .post(`/bids/${props.data.id}/tender`, {
-        tender_point: data.get("tender_point"),
-      })
-      .then((response) => {
-        showSnackbar('更新成功','success')
-        console.log(response);
-        console.log(props.data.user_bidpoint)
-      })
+        .post(`/bids/${props.data.id}/tender`, {
+          tender_point: data.get("tender_point"),
+        })
+        .then((response) => {
+          showSnackbar("更新成功", "success");
+          console.log(response);
+          console.log(props.data.user_bidpoint);
+        })
         .catch((err) => {
-          showSnackbar('更新失敗','error')
-        console.log(err);
-      });
-    }else {
-      axios.patch(`/bids/${props.data.id}`,{
-        tender_point: data.get("tender_point"),
-      }).then((response) => {
-        console.log(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+          showSnackbar("更新失敗", "error");
+          console.log(err);
+        });
+    } else {
+      axios
+        .patch(`/bids/${props.data.id}`, {
+          tender_point: data.get("tender_point"),
+        })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-    
   };
   return (
     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
@@ -199,7 +176,11 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
         <TextField
           id="tender_point"
           name="tender_point"
-          inputProps={{ min: String(props.data.buyout_point),max:String(props.data.start_point), step: "1" }}
+          inputProps={{
+            min: String(props.data.buyout_point),
+            max: String(props.data.start_point),
+            step: "1",
+          }}
           label="入札ポイント"
           defaultValue={String(props.data.start_point)}
           type="number"
@@ -213,17 +194,17 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
 const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     axios
       .post(`/bids/${props.data.id}/tenderlack`)
       .then((response) => {
-        showSnackbar('更新成功','success')
+        showSnackbar("更新成功", "success");
         console.log(response);
       })
       .catch((err) => {
-        showSnackbar('更新失敗','error')
+        showSnackbar("更新失敗", "error");
         console.log(err);
       });
   };
@@ -238,17 +219,17 @@ const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
 const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     axios
       .post(`/bids/${props.data.id}/tenderlack`)
       .then((response) => {
-        showSnackbar('更新成功','success')
+        showSnackbar("更新成功", "success");
         console.log(response);
       })
       .catch((err) => {
-        showSnackbar('更新失敗','error')
+        showSnackbar("更新失敗", "error");
         console.log(err);
       });
   };
@@ -263,7 +244,7 @@ const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
 const ConvertModalField: React.FC<BidderModalProps> = (
   props: BidderModalProps
 ) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     axios
@@ -271,11 +252,11 @@ const ConvertModalField: React.FC<BidderModalProps> = (
         user_id: props.data.user_id,
       })
       .then((response) => {
-        showSnackbar('更新成功','success')
+        showSnackbar("更新成功", "success");
         console.log(response);
       })
       .catch((err) => {
-        showSnackbar('更新失敗','error')
+        showSnackbar("更新失敗", "error");
         console.log(err);
       });
   };
@@ -291,17 +272,17 @@ const ConvertModalField: React.FC<BidderModalProps> = (
 const CheckWorkModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   props: ResponseCardProps<SlotResponse>
 ) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     axios
       .post(`/slots/${props.data.id}/complete`)
       .then((response) => {
-        showSnackbar('更新成功','success')
+        showSnackbar("更新成功", "success");
         console.log(response);
       })
       .catch((err) => {
-        showSnackbar('更新失敗','error')
+        showSnackbar("更新失敗", "error");
         console.log(err);
       });
   };
@@ -317,7 +298,7 @@ const CheckWorkModalField: React.FC<ResponseCardProps<SlotResponse>> = (
 const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   props: ResponseCardProps<SlotResponse>
 ) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const start_time_string = `${props.data.start_time.year}-${props.data.start_time.month}-${props.data.start_time.day}`;
   const end_time_string = `${props.data.end_time.year}-${props.data.end_time.month}-${props.data.end_time.day}`;
   const [starttime, setStarttime] = React.useState<Dayjs | null>(
@@ -355,10 +336,10 @@ const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
       })
       .then((response) => {
         console.log(response);
-        showSnackbar('更新成功','success')
+        showSnackbar("更新成功", "success");
       })
       .catch((err) => {
-        showSnackbar('更新失敗','error')
+        showSnackbar("更新失敗", "error");
         console.log(err);
       });
   };
@@ -411,7 +392,7 @@ const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
 const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
   props: ResponseCardProps<TaskResponse>
 ) => {
-  const {showSnackbar}=useSnackbar()
+  const { showSnackbar } = useSnackbar();
   const [tag_id, setTagID] = React.useState<string[]>([]);
   const [auth_id, setAuthID] = React.useState<string[]>([]);
 
@@ -426,17 +407,17 @@ const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
         max_woker_num: data.get("max_woker_num"),
         min_woker_num: data.get("min_woker_num"),
         exp_woker_num: data.get("exp_woker_num"),
+        start_point: data.get("start_point"),
+        buyout_point: data.get("buyout_point"),
         tag: tag_id,
         authority: auth_id,
       })
       .then((response) => {
         console.log(response);
-        showSnackbar('更新成功','success')
-
-
+        showSnackbar("更新成功", "success");
       })
       .catch((err) => {
-        showSnackbar('更新失敗','error')
+        showSnackbar("更新失敗", "error");
         console.log(err);
       });
   };
@@ -500,6 +481,26 @@ const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
             type="number"
           />
         </Grid>
+        <Grid item xs={12}>
+          <TextField
+            id="start_point"
+            name="start_point"
+            inputProps={{ min: "1", step: "1" }}
+            label="開始ポイント"
+            defaultValue="10"
+            type="number"
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            id="buyout_point"
+            name="buyout_point"
+            inputProps={{ min: "0", step: "1" }}
+            label="即決価格"
+            defaultValue="0"
+            type="number"
+          />
+        </Grid>
         <Grid>
           <SimpleChoiceField
             url="/tags"
@@ -527,29 +528,42 @@ const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
 export const ResponseDisplay: React.FC<ResponseDisplayProps> = (
   props: ResponseDisplayProps
 ) => {
-
-  const value = React.useContext(TabContext)
-  if (value===0 && isSlot(props.data)) {
+  const value = React.useContext(TabContext);
+  if (value === 0 && isSlot(props.data)) {
     return (
       <Typography variant="body2" color="text.secondary" align="left">
-    <p>{props.data.start_time.hour}時{props.data.start_time.minute}分開始</p>
-    <p>{props.data.end_time.hour}時{props.data.end_time.minute}分終了</p>
-  </Typography>
+        <p>
+          {props.data.start_time.hour}時{props.data.start_time.minute}分開始
+        </p>
+        <p>
+          {props.data.end_time.hour}時{props.data.end_time.minute}分終了
+        </p>
+      </Typography>
     );
-  } else if (value===1 && isBid(props.data)) {
-    return (<>
-      <Typography variant="body2" color="text.secondary" align="right">
-        <p>{props.data.slot.start_time.hour}時{props.data.slot.start_time.minute}
-        分開始</p> <p>回答締め切り:{props.data.close_time.month}月
-        {props.data.close_time.day}日</p>
-      </Typography>{
-        props.data.user_bidpoint!=='notyet' ?(<Typography variant="body2" color='success' align='center'>
-          入札済み:{props.data.user_bidpoint}
-        </Typography>):(<></>)
-      }
+  } else if (value === 1 && isBid(props.data)) {
+    return (
+      <>
+        <Typography variant="body2" color="text.secondary" align="right">
+          <p>
+            {props.data.slot.start_time.hour}時
+            {props.data.slot.start_time.minute}
+            分開始
+          </p>{" "}
+          <p>
+            回答締め切り:{props.data.close_time.month}月
+            {props.data.close_time.day}日
+          </p>
+        </Typography>
+        {props.data.user_bidpoint !== "notyet" ? (
+          <Typography variant="body2" color="success" align="center">
+            入札済み:{props.data.user_bidpoint}
+          </Typography>
+        ) : (
+          <></>
+        )}
       </>
     );
-  } else if (value === 2 && isBidder(props.data)){
+  } else if (value === 2 && isBidder(props.data)) {
     return (
       <Typography variant="body2" color="text.secondary" align="right">
         <p>交代申請者{props.data.user}</p>
@@ -557,32 +571,46 @@ export const ResponseDisplay: React.FC<ResponseDisplayProps> = (
         <p>交代して貰えるポイント{props.data.point}</p>
       </Typography>
     );
-  } else if ((value===3||value===4) && isBid(props.data)) {
+  } else if ((value === 3 || value === 4) && isBid(props.data)) {
     return (
       <Typography variant="body2" color="text.secondary" align="right">
-        <p>{props.data.slot.start_time.hour}時{props.data.slot.start_time.minute}分開始</p>
-        <p>{props.data.slot.end_time.hour}時{props.data.slot.end_time.minute}分終了</p>
-        <p>貰えるポイント：{props.data.buyout_point-1}</p>
+        <p>
+          {props.data.slot.start_time.hour}時{props.data.slot.start_time.minute}
+          分開始
+        </p>
+        <p>
+          {props.data.slot.end_time.hour}時{props.data.slot.end_time.minute}
+          分終了
+        </p>
+        <p>貰えるポイント：{props.data.buyout_point - 1}</p>
       </Typography>
     );
-  } else if (value===5 && isSlot(props.data)) {
+  } else if (value === 5 && isSlot(props.data)) {
     return (
       <Typography variant="body2" color="text.secondary" align="right">
         <p>貰えるポイント：{props.data.name}</p>
       </Typography>
     );
-  } else if (value===6 && isSlot(props.data)) {
+  } else if (value === 6 && isSlot(props.data)) {
     return (
       <Typography variant="body2" color="text.secondary" align="left">
-    <p>{props.data.start_time.hour}時{props.data.start_time.minute}分開始</p>
-    <p>{props.data.end_time.hour}時{props.data.end_time.minute}分終了</p>
-  </Typography>
+        <p>
+          {props.data.start_time.hour}時{props.data.start_time.minute}分開始
+        </p>
+        <p>
+          {props.data.end_time.hour}時{props.data.end_time.minute}分終了
+        </p>
+      </Typography>
     );
-  } else if (value===7 && isTask(props.data)) {
+  } else if (value === 7 && isTask(props.data)) {
     return (
       <Typography variant="body2" color="text.secondary" align="right">
-        <p>最低限必要な人数:{props.data.min_worker_num}人</p> <p>その中で必要な経験者の数:
-        {props.data.exp_worker_num}人</p> <p>最大人数:{props.data.max_worker_num}人</p>
+        <p>最低限必要な人数:{props.data.min_worker_num}人</p>{" "}
+        <p>
+          その中で必要な経験者の数:
+          {props.data.exp_worker_num}人
+        </p>{" "}
+        <p>最大人数:{props.data.max_worker_num}人</p>
       </Typography>
     );
   } else {

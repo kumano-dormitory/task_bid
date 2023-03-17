@@ -30,6 +30,8 @@ def bid_response(bid: Bid):
             "id": bid.slot_id,
             "name": bid.slot.name,
         },
+        'start_point':bid.slot.task.start_point,
+        'buyout_point':bid.slot.task.buyout_point,
         "is_complete": bid.is_complete,
     }
     return response
@@ -72,6 +74,8 @@ def bids_response(bids: list[Bid]):
                     "minute": bid.slot.end_time.minute,
                 },
             },
+            'start_point':bid.slot.task.start_point,
+            'buyout_point':bid.slot.task.buyout_point,
             "is_complete": bid.is_complete,
         }
         for bid in bids
@@ -230,7 +234,7 @@ def user_response(user: User):
         "block": user.block,
         "room_number": user.room_number,
         "achivement": user.achivement,
-        "exp_task": user.exp_task,
+        "exp_task": tasks_response(user.exp_task),
         "slots": user.slots,
         "create_slot": user.create_slot,
         "create_task": user.create_task,

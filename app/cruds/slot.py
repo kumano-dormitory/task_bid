@@ -1,7 +1,7 @@
 import datetime
 from fastapi import FastAPI, HTTPException, status
 from app.models.models import User
-from app.schemas.slot import SlotRequest
+from app.schemas.slot import SlotRequest, SlotUpdate
 from app.models.models import Slot, Bidder, Task, Bid
 from sqlalchemy.orm import Session
 from app.cruds.response import (
@@ -12,7 +12,7 @@ from app.cruds.response import (
 )
 from sqlalchemy.future import select
 from app.cruds.bidder import bidder_get
-from sqlalchemy import delete
+from sqlalchemy import delete, update
 
 
 def all(db: Session):
@@ -64,6 +64,45 @@ def post(slot: SlotRequest, db: Session, user: User):
     db.add(slot)
     db.commit()
     db.refresh(slot)
+    return slot_response(slot)
+
+
+def patch(request: SlotUpdate, slot_id: str, db: Session):
+    slot = db.get(Slot, slot_id)
+    if not slot:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No note with this id: {slot_id} found",
+        )
+    task = db.get(Task, request.task)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    db.execute(
+        update(Slot)
+        .where(Slot.id == slot_id)
+        .values(
+            name=request.name if request.name else slot.name,
+        )
+        .execution_options(synchronize_session="evaluate")
+    )
+    slot.start_time = datetime.datetime(
+        request.start_time.year,
+        request.start_time.month,
+        request.start_time.day,
+        request.start_time.hour,
+        request.start_time.minute,
+    )
+    slot.end_time = datetime.datetime(
+        request.end_time.year,
+        request.end_time.month,
+        request.end_time.day,
+        request.end_time.hour,
+        request.end_time.minute,
+    )
+    slot.task = task
+    db.commit()
     return slot_response(slot)
 
 
@@ -148,7 +187,7 @@ def delete_prune_slots(db: Session):
     slots = db.scalars(select(Slot)).all()
     for slot in slots:
         if slot.template == [] and slot.bid == None:
-            prune_slots.append({"id":slot.id,"name":slot.name})
+            prune_slots.append({"id": slot.id, "name": slot.name})
             db.delete(slot)
     db.commit()
     return prune_slots
@@ -163,7 +202,7 @@ def delete_expired_slots(db: Session):
             and slot.assignees == []
             and slot.template == []
         ):
-            expired_slots.append({"id":slot.id,"name":slot.name})
+            expired_slots.append({"id": slot.id, "name": slot.name})
             db.delete(slot)
     db.commit()
     return expired_slots

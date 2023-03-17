@@ -24,6 +24,9 @@ import useSWR, { Fetcher } from "swr";
 import { SlotResponse } from "../../ResponseType";
 import axios from "../../axios";
 import { ConfirmModal } from "../modal/ConfirmModal";
+import { Button } from "@mui/material";
+import { ModalBase } from "../modal/ModalBase";
+import { SlotModalField } from "../modal/SlotModalField";
 
 const sort_slot_by_date = (slots: SlotResponse[]): SlotResponse[] => {
   return slots.sort((a: SlotResponse, b: SlotResponse) => {
@@ -212,7 +215,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           <ConfirmModal
             open={open}
             names={names}
-            text={'以下の仕事を削除します'}
+            text={"以下の仕事を削除します"}
             handleClose={handleClose}
             handleSubmit={handleSubmit}
           />
@@ -240,6 +243,8 @@ export const SlotAllList: React.FC = () => {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const { data, error } = useSWR("/slots/", getData);
+  const [open, setOpen] = React.useState(false);
+  const [selected_slot, setSlot] = React.useState<SlotResponse>();
 
   if (error) return <div>Loading Failed</div>;
   if (!data) return <div>Loading...</div>;
@@ -301,6 +306,13 @@ export const SlotAllList: React.FC = () => {
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleModalOpen = (slot: SlotResponse) => {
+    setSlot(slot);
+    handleOpen();
+  };
+
   // Avoid a layout jump when reaching the last page with empty data.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
@@ -335,43 +347,51 @@ export const SlotAllList: React.FC = () => {
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, slot.id)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={slot.id}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
+                    <>
+                      {" "}
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={slot.id}
+                        selected={isItemSelected}
                       >
-                        {slot.name}
-                      </TableCell>
-                      <TableCell align="left">
-                        {slot.start_time.year}年{slot.start_time.month}月
-                        {slot.start_time.day}日
-                      </TableCell>
-                      <TableCell align="left">
-                        {slot.end_time.year}年{slot.end_time.month}月
-                        {slot.end_time.day}日
-                      </TableCell>
-                      <TableCell align="left">{slot.creater.name}</TableCell>
-                      <TableCell align="left">{slot.task.name}</TableCell>
-                    </TableRow>
+                        <TableCell
+                          padding="checkbox"
+                          onClick={(event) => handleClick(event, slot.id)}
+                        >
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                            inputProps={{
+                              "aria-labelledby": labelId,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {slot.name}
+                        </TableCell>
+                        <TableCell align="left">
+                          {slot.start_time.year}年{slot.start_time.month}月
+                          {slot.start_time.day}日
+                        </TableCell>
+                        <TableCell align="left">
+                          {slot.end_time.year}年{slot.end_time.month}月
+                          {slot.end_time.day}日
+                        </TableCell>
+                        <TableCell align="left">{slot.creater.name}</TableCell>
+                        <TableCell align="left">{slot.task.name}</TableCell>
+                        <Button onClick={() => handleModalOpen(slot)}>
+                          詳細
+                        </Button>
+                      </TableRow>
+                    </>
                   );
                 })}
               {emptyRows > 0 && (
@@ -400,6 +420,9 @@ export const SlotAllList: React.FC = () => {
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+      <ModalBase title="詳細" open={open} handleClose={handleClose}>
+        {selected_slot ? <SlotModalField data={selected_slot} /> : <></>}
+      </ModalBase>
     </Box>
   );
 };

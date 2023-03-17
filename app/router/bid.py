@@ -102,12 +102,12 @@ async def bid_tenderlack(
     db: Session = Depends(get_db),
 ):
     bid = db.get(Bid, bid_id)
-    if not bid.is_complete:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     if not bid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
         )
+    if not bid.is_complete:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     if bid.slot.end_time < datetime.datetime.now():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="この仕事は参加申請時間外です"

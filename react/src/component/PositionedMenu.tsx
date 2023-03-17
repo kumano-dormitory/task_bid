@@ -41,7 +41,8 @@ export default function PositionedMenu() {
           horizontal: 'left',
         }}
       >
-        <MenuItem onClick={()=>navigate('/bidpage')}>仕事一覧</MenuItem>
+        <MenuItem onClick={() => navigate('/bidpage')}>仕事一覧</MenuItem>
+        <MenuItem onClick={()=>navigate('/mypage')}>ユーザー情報</MenuItem>
         <MenuItem onClick={()=>navigate('/login')}>Login</MenuItem>
         <MenuItem onClick={()=>navigate('/register')}>Sign up</MenuItem>
               </Menu>
