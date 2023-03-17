@@ -43,8 +43,6 @@ export const SlotFromTemplate = () => {
             day: day.date.get("date"),
           };
         }),
-        start_point: data.get("start_point"),
-        buyout_point: data.get("buyout_point"),
       })
       .then((response) => {
         console.log(response);
@@ -84,26 +82,6 @@ export const SlotFromTemplate = () => {
             sx={{ mt: 3 }}
           >
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  id="start_point"
-                  name="start_point"
-                  inputProps={{ min: "1", step: "1" }}
-                  label="開始ポイント"
-                  defaultValue="10"
-                  type="number"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="buyout_point"
-                  name="buyout_point"
-                  inputProps={{ min: "0", step: "1" }}
-                  label="即決価格"
-                  defaultValue="0"
-                  type="number"
-                />
-              </Grid>
               <Grid>
                 <DateMultiSelect days={days} setDays={setDays} />
               </Grid>

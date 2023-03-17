@@ -1,13 +1,9 @@
 import * as React from "react";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import { SlotResponse } from "../../ResponseType";
 import { Typography } from "@mui/material";
-
+import { ModalBase } from "./ModalBase";
 type ModalProps = {
   open: boolean;
   slot: SlotResponse;
@@ -17,20 +13,16 @@ type ModalProps = {
 
 type SlotInfoTextProps = {
   slot: SlotResponse;
+  handleDelete: () => void;
 };
 
 export const SlotInfo: React.FC<ModalProps> = (props: ModalProps) => {
   return (
-    <Dialog open={props.open} onClose={props.handleClose}>
-      <DialogTitle>詳細</DialogTitle>
-      <DialogContent>
-        <DialogContentText><SlotInfoText slot={props.slot}/></DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={props.handleClose}>Cancel</Button>
-        <Button onClick={props.handleDelete}>テンプレートから外す</Button>
-      </DialogActions>
-    </Dialog>
+    <ModalBase title="詳細" open={props.open} handleClose={props.handleClose}>
+      <DialogContentText>
+        <SlotInfoText slot={props.slot} handleDelete={props.handleDelete} />
+      </DialogContentText>
+    </ModalBase>
   );
 };
 
@@ -39,7 +31,7 @@ const SlotInfoText: React.FC<SlotInfoTextProps> = (
 ) => {
   return (
     <>
-      <Typography component={"h3"} variant="h3">
+      <Typography component={"h5"} variant="h5">
         {props.slot.name}
       </Typography>
       <Typography variant="body1">
@@ -52,10 +44,11 @@ const SlotInfoText: React.FC<SlotInfoTextProps> = (
           終了時刻:{props.slot.end_time.year}年{props.slot.end_time.month}月
           {props.slot.end_time.day}日{props.slot.end_time.hour}時
           {props.slot.end_time.minute}分
-              </li>
-              <li>作成者:{props.slot.creater.name}</li>
-              <li>タスク:{props.slot.task.name}</li>
+        </li>
+        <li>作成者:{props.slot.creater.name}</li>
+        <li>タスク:{props.slot.task.name}</li>
       </Typography>
+      <Button onClick={props.handleDelete} >テンプレートから外す</Button>
     </>
   );
 };

@@ -53,8 +53,7 @@ export const BidForm: React.FC = () => {
           minute: closetime.get("minute"),
         },
         slot: slot.slot_id,
-        start_point: data.get("start_point"),
-        buyout_point: data.get("buyout_point"),
+        
       })
       .then((response) => {
         console.log(response);
@@ -120,26 +119,6 @@ export const BidForm: React.FC = () => {
                 <Typography component="h1" variant="h6">
                   募集する仕事:{slot.name}
                 </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="start_point"
-                  name="start_point"
-                  inputProps={{ min: "1", step: "1" }}
-                  label="開始ポイント"
-                  defaultValue="10"
-                  type="number"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="buyout_point"
-                  name="buyout_point"
-                  inputProps={{ min: "0", step: "1" }}
-                  label="即決価格"
-                  defaultValue="0"
-                  type="number"
-                />
               </Grid>
             </Grid>
             <Button

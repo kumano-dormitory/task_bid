@@ -90,8 +90,6 @@ class Bid(Base):
         ForeignKey("slot.id", ondelete="SET NULL")
     )
     slot: Mapped["Slot"] = relationship(back_populates="bid")
-    start_point: Mapped[int] = mapped_column(default=0)
-    buyout_point: Mapped[int] = mapped_column(default=0)
     is_complete: Mapped[bool] = mapped_column(default=False)
     bidder: Mapped[Optional[list["Bidder"]]] = relationship(
         back_populates="bid", cascade="all,delete"
@@ -147,6 +145,8 @@ class Task(Base):
     max_woker_num: Mapped[int] = mapped_column(default=1)  # 最大人数
     min_woker_num: Mapped[int] = mapped_column(default=1)  # 最少人数
     exp_woker_num: Mapped[int] = mapped_column(default=0)  # 必要な経験者の人数
+    start_point: Mapped[int] = mapped_column(default=0)
+    buyout_point: Mapped[int] = mapped_column(default=0)
     slot: Mapped[list["Slot"]|None] = relationship(
         back_populates="task", cascade="all,delete"
     )

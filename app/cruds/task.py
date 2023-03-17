@@ -58,6 +58,12 @@ def patch(request: TaskUpdate, task_id: str, db: Session):
             exp_woker_num=request.exp_woker_num
             if request.exp_woker_num
             else task.exp_woker_num,
+            start_point=request.start_point
+            if request.start_point
+            else task.start_point,
+            buyout_point=request.buyout_point
+            if request.buyout_point
+            else task.buyout_point,
         )
         .execution_options(synchronize_session="evaluate")
     )

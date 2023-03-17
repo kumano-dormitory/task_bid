@@ -9,7 +9,6 @@ export const Layout: React.FC = () => {
     <div>
         <Stack direction={"row"}>
           <PositionedMenu />
-          <AccountMenu />
         </Stack>
       <Outlet />
         <h4>Footer</h4>

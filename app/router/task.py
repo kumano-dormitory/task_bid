@@ -4,9 +4,10 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.cruds import task as crud
 from app.cruds import auth
-from app.schemas.task import Task, TaskCreate, TaskList, TaskUpdate
+from app.schemas.task import TaskCreate, TaskList, TaskUpdate
 from app.schemas.users import User
-
+from app.models.models import Task
+from app.cruds.response import task_response
 router = APIRouter()
 
 
@@ -36,3 +37,12 @@ async def task_patch(
 ):
     task = crud.patch(task, task_id, db)
     return task
+
+@router.delete('/{task_id}')
+async def task_delete(
+    task_id:str,db:Session=Depends(get_db)
+):
+    task=db.get(Task,task_id)
+    db.delete(task)
+    db.commit()
+    return task_response

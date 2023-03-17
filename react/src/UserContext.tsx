@@ -2,13 +2,14 @@ import axios from "./axios";
 import React, { createContext } from "react";
 import useSWR, { Fetcher } from "swr";
 import { useNavigate } from "react-router-dom";
+import { SlotResponse, TaskResponse } from "./ResponseType";
 type User = {
   id: string;
   name: string;
   block: string;
   room_number: string;
   achivement: [];
-  exp_task: [];
+  exp_task: TaskResponse[];
   slots: [];
   create_slot: [];
   create_task: [];

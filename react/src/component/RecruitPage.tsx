@@ -3,8 +3,6 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { useNavigate } from "react-router-dom";
-import { CreateCard } from "./field/NewCreateCard";
 import { UserContext } from "../UserContext";
 import { AdminPage } from "./AdminPage";
 import { DataList } from "./list/DataList";
@@ -51,7 +49,6 @@ export const BidPage: React.FC = () => {
   };
   const { user } = React.useContext(UserContext);
 
-  const navigate = useNavigate();
 
   return (
     <TabContext.Provider value={value}>
@@ -69,9 +66,7 @@ export const BidPage: React.FC = () => {
             <Tab label="人数不足中" {...a11yProps(3)} />
             <Tab label="経験が不足中" {...a11yProps(4)} />
             <Tab label="完了したシフト" {...a11yProps(5)} />
-            <Tab label="募集した仕事" {...a11yProps(6)} />
-            <Tab label="作成したタスク" {...a11yProps(7)} />
-            <Tab label="管理画面（仮）" {...a11yProps(8)} />
+            <Tab label="管理画面（仮）" {...a11yProps(6)} />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -93,30 +88,6 @@ export const BidPage: React.FC = () => {
           <DataList url={"/users/" + user.id + "/slots/?end=True"} />
         </TabPanel>
         <TabPanel value={value} index={6}>
-          <CreateCard
-            text="新しく仕事を募集"
-            onClick={() => {
-              navigate("/newslot");
-            }}
-          />
-          <CreateCard
-            text="テンプレートを作成"
-            onClick={() => {
-              navigate("/newtemplate");
-            }}
-          />
-          <DataList url={"/users/" + user.id + "/createslot"} />
-        </TabPanel>
-        <TabPanel value={value} index={7}>
-          <CreateCard
-            text="新しいタスクを作成"
-            onClick={() => {
-              navigate("/newtask");
-            }}
-          />
-          <DataList url={"/users/" + user.id + "/createtask"} />
-        </TabPanel>
-        <TabPanel value={value} index={8}>
           <AdminPage />
         </TabPanel>
       </Box>

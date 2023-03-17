@@ -30,12 +30,14 @@ export const TaskForm = () => {
         max_woker_num: data.get("max_woker_num"),
         min_woker_num: data.get("min_woker_num"),
         exp_woker_num: data.get("exp_woker_num"),
+        start_point: data.get("start_point"),
+        buyout_point: data.get("buyout_point"),
         tag: tag_id,
         authority: auth_id,
       })
       .then((response) => {
         console.log(response);
-        navigate("/login");
+        navigate("/bidpage");
       })
       .catch((err) => {
         console.log(err);
@@ -119,6 +121,26 @@ export const TaskForm = () => {
                   inputProps={{ min: "0", step: "1" }}
                   label="必要な経験者の人数"
                   defaultValue="1"
+                  type="number"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  id="start_point"
+                  name="start_point"
+                  inputProps={{ min: "1", step: "1" }}
+                  label="開始ポイント"
+                  defaultValue="10"
+                  type="number"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  id="buyout_point"
+                  name="buyout_point"
+                  inputProps={{ min: "0", step: "1" }}
+                  label="即決価格"
+                  defaultValue="0"
                   type="number"
                 />
               </Grid>

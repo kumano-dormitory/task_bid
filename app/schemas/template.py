@@ -24,16 +24,14 @@ class TemplateCreate(BaseModel):
 
 class TemplateGenRequest(BaseModel):
     first_day: TemplateDate
-    start_point: int
-    buyout_point: int
+
 
     class Config:
         orm_mode = True
 
 class TemplateBulkGenRequest(BaseModel):
     first_days: list[TemplateDate]
-    start_point: int
-    buyout_point: int
+
 
     class Config:
         orm_mode = True

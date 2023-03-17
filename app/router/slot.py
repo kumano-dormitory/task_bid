@@ -5,7 +5,7 @@ from app.database import get_db
 from sqlalchemy.orm import Session
 from app.models.models import User, Bidder, Bid, Slot
 from app.schemas.users import UserBase, UserDisplay
-from app.schemas.slot import SlotRequest, SlotCancelRequest, SlotDeleteRequest
+from app.schemas.slot import SlotUpdate, SlotRequest, SlotCancelRequest, SlotDeleteRequest
 from app.router.auth import Token
 from app.cruds.auth import oauth2_scheme, get_current_active_user
 import app.cruds.slot as crud
@@ -71,6 +71,13 @@ async def slot_complete(
 ):
     response = crud.complete(slot_id, user, db)
     return response
+
+@router.patch('/{slot_id}')
+async def slot_patch(
+    slot_id:str,request:SlotUpdate,db:Session=Depends(get_db)
+):
+    slot=crud.patch(request,slot_id,db)
+    return slot
 
 @router.delete('/')
 async def vain_slots_delete(prune:bool|None=None,expired:bool|None=None,db:Session=Depends(get_db)):

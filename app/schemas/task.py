@@ -18,6 +18,8 @@ class TaskCreate(BaseModel):
     max_woker_num:int=Field(1)
     min_woker_num:int=Field(1)
     exp_woker_num:int=Field(0)
+    start_point:int=Field(1)
+    buyout_point:int=Field(0)
     tag:list[UUID]=[]
     authority:list[UUID]=[]
 
@@ -47,5 +49,7 @@ class TaskUpdate(BaseModel):
     max_woker_num:int|None
     min_woker_num:int|None
     exp_woker_num:int|None
+    start_point:int|None
+    buyout_point:int|None
     class Config:
         orm_mode=True

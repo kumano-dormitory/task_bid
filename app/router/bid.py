@@ -45,29 +45,14 @@ async def bid_getbyid(
     return bid
 
 
-@router.patch("/{bid_id}")
-async def bidder_patch_user_point(
-    bid_id: str,
-    request: TenderRequest,
-    user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
-):
-    bidder = crud.patch_bidder_point(bid_id, user, request.tender_point, db)
-    return bidder
-
-
 @router.post("/")
 async def bid_post(
     bid: BidRequest,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_active_user),
 ):
-    if auth.check_authority(user, "POST", "/bids/"):
-        response = crud.post(bid, db, user)
-        return response
-    elif bid.buyout_point == 0:
-        response = crud.post(bid, db, user)
-        return response
+    response = crud.post(bid, db, user)
+    return response
 
 
 @router.post("/personal")
@@ -76,9 +61,8 @@ async def bid_post_personal(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_active_user),
 ):
-    if auth.check_authority(user, "POST", "/bids/personal"):
-        response = crud.post_personal(bid, db, user)
-        return response
+    response = crud.post_personal(bid, db, user)
+    return response
 
 
 @router.post("/{bid_id}/tender")
@@ -101,6 +85,12 @@ async def bid_tender(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="この仕事は参加申請時間外です"
         )
+    if (
+        request.tender_point
+        < bid.slot.task.buyout_point | request.tender_point
+        > bid.slot.task.start_point
+    ):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     response = crud.tender(bid_id, request.tender_point, current_user, db)
     return response
 
@@ -112,12 +102,12 @@ async def bid_tenderlack(
     db: Session = Depends(get_db),
 ):
     bid = db.get(Bid, bid_id)
-    if not bid.is_complete:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     if not bid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
         )
+    if not bid.is_complete:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     if bid.slot.end_time < datetime.datetime.now():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="この仕事は参加申請時間外です"
