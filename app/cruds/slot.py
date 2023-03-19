@@ -39,7 +39,7 @@ def get(name: str, db: Session):
 
 
 def post(slot: SlotRequest, db: Session, user: User):
-    task = db.get(Task, slot.task)
+    task = db.get(Task, slot.task_id)
     if not task:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     slot = Slot(
@@ -58,7 +58,7 @@ def post(slot: SlotRequest, db: Session, user: User):
             slot.end_time.hour,
             slot.end_time.minute,
         ),
-        task_id=slot.task,
+        task_id=slot.task_id,
         creater_id=user.id,
     )
     db.add(slot)
@@ -74,7 +74,7 @@ def patch(request: SlotUpdate, slot_id: str, db: Session):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No note with this id: {slot_id} found",
         )
-    task = db.get(Task, request.task)
+    task = db.get(Task, request.task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

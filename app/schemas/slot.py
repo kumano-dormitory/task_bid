@@ -1,49 +1,41 @@
 from typing import Dict
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from .task import Task
 from .bid import Bid
 from .template import Template
+from app.schemas.originaldatetime import DateTime
 
 
 class SlotBase(BaseModel):
-    name: str
+    name: str = Field(max_length=20)
     start_time: datetime
     end_time: datetime
     creater: Dict
     task: Task
 
 
-class DateTime(BaseModel):
-    year: int
-    month: int
-    day: int
-    hour: int
-    minute: int
-
-
 class SlotCancelRequest(BaseModel):
     premire_point: int
 
-
 class SlotRequest(BaseModel):
-    name: str
+    name: str = Field(max_length=20)
     start_time: DateTime
     end_time: DateTime
-    task: str
+    task_id: UUID
 
     class Config:
         orm_mode = True
 
 
 class SlotDeleteRequest(BaseModel):
-    slots_id: list[str]
+    slots_id: list[UUID]
 
 
 class Slot(BaseModel):
     id: UUID
-    name: str
+    name: str=Field(max_length=20)
     start_time: datetime
     end_time: datetime
     creater_id: UUID
@@ -55,10 +47,10 @@ class Slot(BaseModel):
 
 
 class SlotUpdate(BaseModel):
-    name: str
+    name: str|None=Field(default=None,max_length=20)
     start_time: DateTime
     end_time: DateTime
-    task: str
+    task_id: UUID
 
     class Config:
         orm_mode = True

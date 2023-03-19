@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.models.models import User, Task, Slot
-from app.schemas.users import UserBase
-from app.cruds.auth import get_password_hash
+from app.schemas.users import UserBase, UserUpdate
+from app.cruds.auth import get_password_hash, verify_password
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from sqlalchemy import delete
@@ -33,7 +33,16 @@ def get(name: str, db: Session):
 
 def register(user: UserBase, db: Session):
     user.password = get_password_hash(user.password)
-    item = User(**user.dict())
+    item = User(
+        name=user.name,
+        password=user.password,
+        block=user.block,
+        room_number=user.room_number,
+    )
+    if user.exp_task:
+        for exp_task in user.exp_task:
+            task = db.get(Task, exp_task)
+            item.exp_task.append(task)
     db.add(item)
     db.commit()
     db.refresh(item)
@@ -82,3 +91,19 @@ def slots(user_id: str, db: Session):
         slot for slot in slots if slot.end_time > datetime.datetime.now()
     ]
     return slots_response(response_slots)
+
+
+def patch(user_id: str, request: UserUpdate, db: Session):
+    user = db.get(User, user_id)
+    if request.name:
+        user.name = request.name
+    if request.block:
+        user.block = request.block
+    if request.room_number:
+        user.room_number = request.room_number
+    if request.old_password:
+        if verify_password(request.old_password, user.password):
+            if request.password:
+                user.password = get_password_hash(request.password)
+    db.commit()
+    return user_response(user)

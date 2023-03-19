@@ -8,6 +8,7 @@ import { SimpleChoiceField } from "../field/SimpleChoiceField";
 import axios from "../../axios";
 import { useSnackbar } from "../Snackbar";
 import { ResponseCardProps } from "../field/ResponseCard";
+import { useSWRConfig } from "swr";
 
 export const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
   props: ResponseCardProps<TaskResponse>
@@ -15,6 +16,7 @@ export const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
   const { showSnackbar } = useSnackbar();
   const [tag_id, setTagID] = React.useState<string[]>([]);
   const [auth_id, setAuthID] = React.useState<string[]>([]);
+  const { mutate } = useSWRConfig();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,6 +37,7 @@ export const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
       .then((response) => {
         console.log(response);
         showSnackbar("更新成功", "success");
+        mutate('/tasks/')
       })
       .catch((err) => {
         showSnackbar("更新失敗", "error");

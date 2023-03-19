@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 from uuid import UUID
 
 class TemplateBase(BaseModel):
@@ -7,19 +7,19 @@ class TemplateBase(BaseModel):
         orm_mode=True
         
 class Template(TemplateBase):
-    name:str
+    name:str=Field(max_length=20)
     class Config:
         orm_mode=True
 
 class TemplateDate(BaseModel):
-    year: int
-    month: int
-    day: int
+    year: int=Field(ge=2022)
+    month: int=Field(ge=1,le=12)
+    day: int=Field(ge=1,le=31)
 
 
 class TemplateCreate(BaseModel):
-    name: str
-    slots: list[str] = []
+    name: str=Field(max_length=20)
+    slots: list[UUID] = []
 
 
 class TemplateGenRequest(BaseModel):

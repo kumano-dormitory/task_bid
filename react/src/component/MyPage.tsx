@@ -7,24 +7,20 @@ import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { MenuItem } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import axios from "../axios";
-import { DateSelect } from "./field/DateSelect";
-import dayjs, { Dayjs } from "dayjs";
-import { useLocation } from "react-router-dom";
-import { Datetime } from "../ResponseType";
 import { blocks } from "./form/Register";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
+import { useSnackbar } from "./Snackbar";
 const theme = createTheme();
 export const MyPage: React.FC = () => {
-  const { user } = useContext(UserContext);
+  const { user, mutate } = useContext(UserContext);
   const [isMatch, setMatch] = useState(false);
+  const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -43,9 +39,20 @@ export const MyPage: React.FC = () => {
         })
         .then((response) => {
           console.log(response.data);
+          mutate(
+            {
+              ...user,
+              name: response.data.name,
+              block: response.data.block,
+              room_number: response.data.room_number,
+            },
+            false
+          );
+          showSnackbar("更新しました", "success");
         })
         .catch((err) => {
           console.log(err);
+          showSnackbar("更新できませんでした", "error");
         });
     }
     axios
@@ -56,9 +63,20 @@ export const MyPage: React.FC = () => {
       })
       .then((response) => {
         console.log(response.data);
+        mutate(
+          {
+            ...user,
+            name: response.data.name,
+            block: response.data.block,
+            room_number: response.data.room_number,
+          },
+          false
+        );
+        showSnackbar("更新しました", "success");
       })
       .catch((err) => {
         console.log(err);
+        showSnackbar("更新失敗", "error");
       });
   };
 
@@ -74,8 +92,7 @@ export const MyPage: React.FC = () => {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          </Avatar>
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}></Avatar>
           <Typography component="h1" variant="h5">
             ユーザー情報
           </Typography>
@@ -172,6 +189,11 @@ export const MyPage: React.FC = () => {
                   variant="standard"
                 />
               </Grid>
+              <Grid item xs={12}>
+                  {user.exp_task.map((task) => {
+                    return <Chip label={task.name} />;
+                  })}
+              </Grid>
             </Grid>
             <Button
               type="submit"
@@ -182,11 +204,6 @@ export const MyPage: React.FC = () => {
               更新
             </Button>
           </Box>
-          <Stack direction="row" spacing={1}>
-            {user.exp_task.map((task) => {
-              return <Chip label={task.name} />;
-            })}
-          </Stack>
         </Box>
       </Container>
     </ThemeProvider>

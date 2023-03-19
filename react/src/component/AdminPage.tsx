@@ -7,12 +7,15 @@ import TemplateRow from "./list/TemplateRow";
 import { TaskAllList } from "./list/TaskAllList";
 import { CreateCard } from "./field/NewCreateCard";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "./Snackbar";
 export const AdminPage: React.FC = () => {
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
   const handleClick = () => {
     axios
       .post("/admin/closebid")
       .then((response) => {
+        showSnackbar("ビッド終了処理成功", "success");
         console.log(response.data);
       })
       .catch((err) => {
@@ -24,9 +27,11 @@ export const AdminPage: React.FC = () => {
       .delete("/slots/")
       .then((response) => {
         console.log(response);
+        showSnackbar("削除しました", "success");
       })
       .catch((err) => {
         console.log(err);
+        showSnackbar('削除失敗', 'error');
       });
   };
   return (

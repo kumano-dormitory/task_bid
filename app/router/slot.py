@@ -11,7 +11,7 @@ from app.cruds.auth import oauth2_scheme, get_current_active_user
 import app.cruds.slot as crud
 from typing import Union
 from sqlalchemy.future import select
-
+from app.cruds.response import slot_response
 router = APIRouter()
 
 
@@ -29,6 +29,15 @@ async def slot_list(
     slots = crud.all(db)
     return slots
 
+
+@router.get('/{slot_id}')
+async def slot_get(slot_id:str,db:Session=Depends(get_db)):
+    slot=db.get(Slot,slot_id)
+    if not slot:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND
+        )
+    return slot_response(slot)
 
 @router.post("/")
 async def slot_post(

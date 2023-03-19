@@ -43,6 +43,12 @@ def patch(request: TaskUpdate, task_id: str, db: Session):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No note with this id: {task_id} found",
         )
+    start_point=task.start_point if not request.start_point else request.start_point
+    buyout_point=task.buyout_point if not request.buyout_point else request.buyout_point
+    if buyout_point > start_point:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
     db.execute(
         update(Task)
         .where(Task.id == task_id)

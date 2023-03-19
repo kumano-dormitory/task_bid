@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,HTTPException,status
 from typing import Union, Optional
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -26,6 +26,10 @@ async def task_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(auth.get_current_active_user),
 ):
+    if task.buyout_point>task.start_point:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
     if auth.check_authority(current_user, method="POST", url="/tasks/"):
         task = crud.post(task, current_user, db)
         return task
@@ -35,6 +39,7 @@ async def task_post(
 async def task_patch(
     task_id: str, task: TaskUpdate, db: Session = Depends(get_db)
 ):
+    
     task = crud.patch(task, task_id, db)
     return task
 
