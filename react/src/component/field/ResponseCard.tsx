@@ -25,6 +25,11 @@ export type ResponseCardProps<T extends ResponseBase> = {
   data: T;
 };
 
+type LackBidDetailProps = {
+  data: BidResponse;
+  onSubmit:(event: React.FormEvent<HTMLFormElement>) => void
+}
+
 type ResponseListDisplayProps = {
   data: BidResponse | SlotResponse | TaskResponse | BidderResponse;
 };
@@ -229,11 +234,12 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
     </Box>
   );
 };
-const LackBidDetail: React.FC<ResponseCardProps<BidResponse>> = (
-  props: ResponseCardProps<BidResponse>
+const LackBidDetail: React.FC<LackBidDetailProps> = (
+  props: LackBidDetailProps
 ) => {
   return (
-    <Grid container spacing={2}>
+    <Box component="form" noValidate onSubmit={props.onSubmit} sx={{ mt: 3 }}>
+        <Grid container spacing={2}>
       <Grid item xs={12}>
         {props.data.name}
       </Grid>
@@ -251,13 +257,14 @@ const LackBidDetail: React.FC<ResponseCardProps<BidResponse>> = (
         ))}
       </Grid>
       {props.data.user_bidpoint === "notyet" ? (
-        <></>
+        <Button type="submit">参加する</Button>
       ) : (
         <Grid item xs={12}>
           {props.data.user_bidpoint} ポイントで応募中
         </Grid>
       )}
     </Grid>
+    </Box>
   );
 };
 const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
@@ -278,10 +285,7 @@ const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
       });
   };
   return (
-    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-        <LackBidDetail data={props.data} />
-      <Button type="submit">参加する</Button>
-    </Box>
+    <LackBidDetail data={props.data} onSubmit={handleSubmit}/>
   );
 };
 
@@ -303,10 +307,7 @@ const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
       });
   };
   return (
-    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-        <LackBidDetail data={props.data} />
-      <Button type="submit">参加する</Button>
-    </Box>
+    <LackBidDetail data={props.data} onSubmit={handleSubmit}/>
   );
 };
 

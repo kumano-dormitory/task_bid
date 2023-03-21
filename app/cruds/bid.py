@@ -228,7 +228,7 @@ def close(bid_id: str, db: Session):
     if blank_len > not_exp_bidders_len + max(
         (exp_bidders_len - task.exp_woker_num, 0)
     ):
-        message.alert_shortage()
+        message.alert_shortage(slot)
         for exp_bidder in exp_bidders:
             slot.assignees.append(exp_bidder.user)
         for not_exp in inexp_bidders:
@@ -237,7 +237,7 @@ def close(bid_id: str, db: Session):
         return slot_response(slot)
 
     if exp_bidders_len < task.exp_woker_num:
-        message.alert_exp_shortage()
+        message.alert_exp_shortage(slot)
         for exp_bidder in exp_bidders:
             slot.assignees.append(exp_bidder.user)
         for index in range(

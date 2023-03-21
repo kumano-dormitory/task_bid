@@ -39,6 +39,8 @@ async def slot_get(slot_id:str,db:Session=Depends(get_db)):
         )
     return slot_response(slot)
 
+
+
 @router.post("/")
 async def slot_post(
     slot: SlotRequest,
