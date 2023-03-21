@@ -2,10 +2,9 @@ import datetime
 from fastapi import FastAPI, HTTPException, status
 from app.models.models import User
 from app.schemas.slot import SlotRequest
-from app.models.models import Slot, Bidder, Bid, Task,Template
+from app.models.models import Slot, Bidder, Bid, Task, Template
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
-
 
 
 def bid_response(bid: Bid):
@@ -29,9 +28,27 @@ def bid_response(bid: Bid):
         "slot": {
             "id": bid.slot_id,
             "name": bid.slot.name,
+            "start_time": {
+                "year": bid.slot.start_time.year,
+                "month": bid.slot.start_time.month,
+                "day": bid.slot.start_time.day,
+                "hour": bid.slot.start_time.hour,
+                "minute": bid.slot.start_time.minute,
+            },
+            "end_time": {
+                "year": bid.slot.end_time.year,
+                "month": bid.slot.end_time.month,
+                "day": bid.slot.end_time.day,
+                "hour": bid.slot.end_time.hour,
+                "minute": bid.slot.end_time.minute,
+            },
+            "assignees": [
+                {"id": user.id, "name": user.name}
+                for user in bid.slot.assignees
+            ],
         },
-        'start_point':bid.slot.task.start_point,
-        'buyout_point':bid.slot.task.buyout_point,
+        "start_point": bid.slot.task.start_point,
+        "buyout_point": bid.slot.task.buyout_point,
         "is_complete": bid.is_complete,
     }
     return response
@@ -73,9 +90,13 @@ def bids_response(bids: list[Bid]):
                     "hour": bid.slot.end_time.hour,
                     "minute": bid.slot.end_time.minute,
                 },
+                "assignees": [
+                    {"id": user.id, "name": user.name}
+                    for user in bid.slot.assignees
+                ],
             },
-            'start_point':bid.slot.task.start_point,
-            'buyout_point':bid.slot.task.buyout_point,
+            "start_point": bid.slot.task.start_point,
+            "buyout_point": bid.slot.task.buyout_point,
             "is_complete": bid.is_complete,
         }
         for bid in bids
@@ -105,10 +126,10 @@ def bids_response_for_user(bids: list[Bid], user: User, db: Session):
             .order_by(Bidder.point)
             .limit(1)
         ).first()
-        if bidder == None:
+        if bidder is None:
             bid["user_bidpoint"] = "notyet"
-            continue
-        bid["user_bidpoint"] = bidder.point
+        else:
+            bid["user_bidpoint"] = bidder.point
     return respone_bids
 
 
@@ -155,11 +176,11 @@ def slot_response(slot: Slot):
             "hour": slot.end_time.hour,
             "minute": slot.end_time.minute,
         },
-        "assignees": users_response(slot.assignees),
+        "assignees": [
+            {"id": user.id, "name": user.name} for user in slot.assignees
+        ],
         "creater": creater_response(slot.creater),
-        "task": slot.task,
-        "bid": slot.bid,
-        "template": slot.template,
+        "task": task_response(slot.task),
     }
     return response
 
@@ -183,6 +204,9 @@ def slots_response(slots: list[Slot]):
                 "hour": slots.end_time.hour,
                 "minute": slots.end_time.minute,
             },
+            "assignees": [
+                {"id": user.id, "name": user.name} for user in slots.assignees
+            ],
             "creater": creater_response(slots.creater),
             "task": task_response(slots.task),
         }
@@ -199,8 +223,8 @@ def task_response(task: Task):
         "max_worker_num": task.max_woker_num,
         "min_worker_num": task.min_woker_num,
         "exp_worker_num": task.exp_woker_num,
-        "start_point":task.start_point,
-        "buyout_point":task.buyout_point,
+        "start_point": task.start_point,
+        "buyout_point": task.buyout_point,
         "creater_id": task.creater_id,
         "creater": task.creater.name,
     }
@@ -216,8 +240,8 @@ def tasks_response(tasks: list[Task]):
             "max_worker_num": task.max_woker_num,
             "min_worker_num": task.min_woker_num,
             "exp_worker_num": task.exp_woker_num,
-            "start_point":task.start_point,
-            "buyout_point":task.buyout_point,
+            "start_point": task.start_point,
+            "buyout_point": task.buyout_point,
             "creater_id": task.creater_id,
             "creater": task.creater.name,
         }
@@ -233,13 +257,19 @@ def user_response(user: User):
         "name": user.name,
         "block": user.block,
         "room_number": user.room_number,
-        "achivement": user.achivement,
         "exp_task": tasks_response(user.exp_task),
-        "slots": user.slots,
-        "create_slot": user.create_slot,
-        "create_task": user.create_task,
+        "slots": [{"id": slot.id, "name": slot.name} for slot in user.slots],
+        "create_slot": [
+            {"id": slot.id, "name": slot.name} for slot in user.create_slot
+        ],
+        "create_task": [
+            {"id": slot.id, "name": slot.name} for slot in user.create_task
+        ],
         "point": user.point,
-        "bid": user.bid,
+        "bid": [
+            {"id": bidder.bid_id, "name": bidder.bid.name}
+            for bidder in user.bid
+        ],
         "is_active": user.is_active,
     }
     return response_user
@@ -269,18 +299,23 @@ def users_response(users: list[User]):
     ]
     return response_users
 
-def template_response(template:Template):
-    response_template={
-        "id":template.id,
-        "name":template.name,
-        "slots":slots_response(template.slots)
+
+def template_response(template: Template):
+    response_template = {
+        "id": template.id,
+        "name": template.name,
+        "slots": slots_response(template.slots),
     }
     return response_template
 
-def templates_response(templates:list[Template]):
-    response_templates=[{
-        "id":template.id,
-        "name":template.name,
-        "slots":slots_response(template.slots)
-    } for template in templates]
+
+def templates_response(templates: list[Template]):
+    response_templates = [
+        {
+            "id": template.id,
+            "name": template.name,
+            "slots": slots_response(template.slots),
+        }
+        for template in templates
+    ]
     return response_templates

@@ -7,19 +7,19 @@ from .authority import Authority
     
 
 class TaskBase(BaseModel):
-    name:str
-    detail:str
+    name:str=Field(max_length=20)
+    detail:str=Field(max_length=400)
     
 
 
 class TaskCreate(BaseModel):
-    name:str
-    detail:str
-    max_woker_num:int=Field(1)
-    min_woker_num:int=Field(1)
-    exp_woker_num:int=Field(0)
-    start_point:int=Field(1)
-    buyout_point:int=Field(0)
+    name:str=Field(max_length=20)
+    detail:str=Field(max_length=400)
+    max_woker_num:int=Field(default=1,gt=1)
+    min_woker_num:int=Field(default=1,gt=0)
+    exp_woker_num:int=Field(default=0,gt=0)
+    start_point:int=Field(1,gt=0)
+    buyout_point:int=Field(0,gt=0)
     tag:list[UUID]=[]
     authority:list[UUID]=[]
 
@@ -44,11 +44,11 @@ class TaskList(TaskBase):
         
         
 class TaskUpdate(BaseModel):
-    name:str|None
-    detail:str|None
-    max_woker_num:int|None
-    min_woker_num:int|None
-    exp_woker_num:int|None
+    name:str|None=Field(default=None,max_length=20)
+    detail:str|None=Field(default=None,max_length=400)
+    max_woker_num:int|None=Field(default=None,gt=1)
+    min_woker_num:int|None=Field(default=None,gt=0)
+    exp_woker_num:int|None=Field(default=None,gt=0)
     start_point:int|None
     buyout_point:int|None
     class Config:

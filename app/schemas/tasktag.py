@@ -1,10 +1,10 @@
 from typing import Dict
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
 
 class TaskTagBase(BaseModel):
-    name:str
+    name:str=Field(max_length=10)
     task:list[Dict]=[]
 
 

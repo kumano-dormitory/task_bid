@@ -1,6 +1,6 @@
 from typing import Union
 from fastapi import FastAPI
-from app.router import admin, achivement,authority,bid, slot, user,auth,task,bidder,tag,template
+from app.router import admin, achivement,authority,bid, slot, user,auth,task,bidder,tag,template,message
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
@@ -31,3 +31,4 @@ app.include_router(user.router,prefix="/users")
 app.include_router(auth.router,prefix="")
 app.include_router(bidder.router,prefix="/bidders")
 app.include_router(tag.router,prefix="/tags")
+app.include_router(message.router,prefix="/message")

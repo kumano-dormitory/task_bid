@@ -9,6 +9,7 @@ import { Box } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import axios from "../../axios";
 import { useSnackbar } from "../Snackbar";
+import { useSWRConfig } from "swr";
 export type ResponseCardProps<T extends ResponseBase> = {
   data: T;
 };
@@ -20,6 +21,7 @@ export const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
     return number >= 10 ? `${number}` : `0${number}`;
   };
   const { showSnackbar } = useSnackbar();
+  const { mutate } = useSWRConfig();
   const start_time_string = `${props.data.start_time.year}-${
     props.data.start_time.month
   }-${props.data.start_time.day} ${numParse(
@@ -62,11 +64,12 @@ export const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
           hour: endtime ? endtime.get("hour") : props.data.end_time.hour,
           minute: endtime ? endtime.get("minute") : props.data.end_time.minute,
         },
-        task: id,
+        task_id: id,
       })
       .then((response) => {
         console.log(response);
         showSnackbar("更新成功", "success");
+        mutate('/slots/')
       })
       .catch((err) => {
         showSnackbar("更新失敗", "error");

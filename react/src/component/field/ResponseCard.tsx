@@ -10,40 +10,33 @@ import {
   SlotResponse,
   TaskResponse,
   BidderResponse,
+  datetimeParse,
+  noYeardatetimeParse,
 } from "../../ResponseType";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
-import { SingleChoiceField } from "./SIngleChoiceField";
-import { DateSelect } from "./DateSelect";
 import { Box } from "@mui/material";
-import dayjs, { Dayjs } from "dayjs";
-import { SimpleChoiceField } from "./SimpleChoiceField";
 import { TabContext } from "../RecruitPage";
 import axios from "../../axios";
 import { useSnackbar } from "../Snackbar";
 import { ModalBase } from "../modal/ModalBase";
+import { useSWRConfig} from "swr";
 export type ResponseCardProps<T extends ResponseBase> = {
   data: T;
 };
 
-type ResponseDisplayProps = {
-  data: BidResponse | SlotResponse | TaskResponse | BidderResponse;
-};
+type LackBidDetailProps = {
+  data: BidResponse;
+  onSubmit:(event: React.FormEvent<HTMLFormElement>) => void
+}
 
-type ModalProps = {
-  data: ResponseBase;
+type ResponseListDisplayProps = {
+  data: BidResponse | SlotResponse | TaskResponse | BidderResponse;
 };
 
 type BidderModalProps = {
   data: BidderResponse;
 };
-
-
 
 export const ResponseCard: React.FC<
   ResponseCardProps<BidResponse | SlotResponse | TaskResponse | BidderResponse>
@@ -67,41 +60,38 @@ export const ResponseCard: React.FC<
         <Typography gutterBottom variant="h6" component="div">
           {props.data.name}
         </Typography>
-        <ResponseDisplay data={props.data} />
+        <ResponseListDisplay data={props.data} />
       </CardContent>
       <CardActions>
-        <Button size="small">Share</Button>
         <Button size="small" onClick={handleOpen}>
           Open modal
-        </Button> 
-        <ModalBase title={'詳細'} open={open} handleClose={handleClose}>
-        {value === 0 && isSlot(props.data) ? (
-          <AssignModalField data={props.data} />
-        ) : value === 1 && isBid(props.data) ? (
-          <TenderModalField data={props.data} />
-        ) : value === 2 && isBidder(props.data) ? (
-          <ConvertModalField data={props.data} />
-        ) : value === 3 && isBid(props.data) ? (
-          <LackModalField data={props.data} />
-        ) : value === 4 && isBid(props.data) ? (
-          <LackExpModalField data={props.data} />
-        ) : value === 5 && isSlot(props.data) ? (
-          <CheckWorkModalField data={props.data} />
-        ) : value === 6 && isSlot(props.data) ? (
-          <SlotModalField data={props.data} />
-        ) : value === 7 && isTask(props.data) ? (
-          <TaskModalField data={props.data} />
-        ) : (
-          <div>Failed to load data</div>
-        )}
+        </Button>
+        <ModalBase title={"詳細"} open={open} handleClose={handleClose}>
+          {value === 0 && isSlot(props.data) ? (
+            <AssignModalField data={props.data} />
+          ) : value === 1 && isBid(props.data) ? (
+            <TenderModalField data={props.data} />
+          ) : value === 2 && isBidder(props.data) ? (
+            <ConvertModalField data={props.data} />
+          ) : value === 3 && isBid(props.data) ? (
+            <LackModalField data={props.data} />
+          ) : value === 4 && isBid(props.data) ? (
+            <LackExpModalField data={props.data} />
+          ) : value === 5 && isSlot(props.data) ? (
+            <CheckWorkModalField data={props.data} />
+          ) : (
+            <div>Failed to load data</div>
+          )}
         </ModalBase>
-
       </CardActions>
     </Card>
   );
 };
 
-const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
+
+const AssignModalField: React.FC<ResponseCardProps<SlotResponse>> = (
+  props: ResponseCardProps<SlotResponse>
+) => {
   const { showSnackbar } = useSnackbar();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -121,25 +111,55 @@ const AssignModalField: React.FC<ModalProps> = (props: ModalProps) => {
   };
   return (
     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid item xs={12}>
-        <TextField
-          id="premire_point"
-          name="premire_point"
-          inputProps={{ min: "0", step: "1" }}
-          label="加算ポイント"
-          defaultValue="0"
-          type="number"
-        />
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h6">{props.data.name}</Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1">
+            {datetimeParse(props.data.start_time)}開始
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1">
+            {datetimeParse(props.data.end_time)}終了
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1">
+            仕事内容:{props.data.task.detail}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1">
+            参加者:
+            {props.data.assignees.map((user) => (
+              <> {user.name}</>
+            ))}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            id="premire_point"
+            name="premire_point"
+            inputProps={{ min: "0", step: "1" }}
+            label="加算ポイント"
+            defaultValue="0"
+            type="number"
+          />
+        </Grid>
       </Grid>
       <Button type="submit">交代を申請する</Button>
     </Box>
   );
 };
 
+
 const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
   const { showSnackbar } = useSnackbar();
+  const { mutate } = useSWRConfig();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -150,6 +170,7 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
         })
         .then((response) => {
           showSnackbar("更新成功", "success");
+          mutate("/bids/");
           console.log(response);
           console.log(props.data.user_bidpoint);
         })
@@ -164,6 +185,7 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
         })
         .then((response) => {
           console.log(response);
+          mutate("/bids/");
         })
         .catch((err) => {
           console.log(err);
@@ -172,25 +194,79 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
   };
   return (
     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+        {props.data.name}
+      </Grid>
       <Grid item xs={12}>
-        <TextField
-          id="tender_point"
-          name="tender_point"
-          inputProps={{
-            min: String(props.data.buyout_point),
-            max: String(props.data.start_point),
-            step: "1",
-          }}
-          label="入札ポイント"
-          defaultValue={String(props.data.start_point)}
-          type="number"
-        />
+        勤務時間:{noYeardatetimeParse(props.data.slot.start_time)}~
+        {noYeardatetimeParse(props.data.slot.end_time)}
+      </Grid>
+      <Grid item xs={12}>
+        応募締切{datetimeParse(props.data.close_time)}まで
+      </Grid>
+      <Grid item xs={12}>
+        貰えるポイント:{props.data.buyout_point}~{props.data.start_point}
+      </Grid>
+      {props.data.user_bidpoint === "notyet" ? (
+        <></>
+      ) : (
+        <Grid item xs={12}>
+          {props.data.user_bidpoint}ポイントで応募中
+        </Grid>
+      )}
+        <Grid item xs={12}>
+          <TextField
+            id="tender_point"
+            name="tender_point"
+            inputProps={{
+              min: String(props.data.buyout_point),
+              max: String(props.data.start_point),
+              step: "1",
+            }}
+            label="入札ポイント"
+            defaultValue={String(props.data.start_point)}
+            type="number"
+          />
+        </Grid>
       </Grid>
       <Button type="submit">入札する</Button>
     </Box>
   );
 };
-
+const LackBidDetail: React.FC<LackBidDetailProps> = (
+  props: LackBidDetailProps
+) => {
+  return (
+    <Box component="form" noValidate onSubmit={props.onSubmit} sx={{ mt: 3 }}>
+        <Grid container spacing={2}>
+      <Grid item xs={12}>
+        {props.data.name}
+      </Grid>
+      <Grid item xs={12}>
+        勤務時間:{noYeardatetimeParse(props.data.slot.start_time)}~
+        {noYeardatetimeParse(props.data.slot.end_time)}
+      </Grid>
+      <Grid item xs={12}>
+        貰えるポイント:{props.data.buyout_point - 1}
+      </Grid>
+      <Grid item xs={12}>
+        参加者:
+        {props.data.slot.assignees.map((user) => (
+          <> {user.name}</>
+        ))}
+      </Grid>
+      {props.data.user_bidpoint === "notyet" ? (
+        <Button type="submit">参加する</Button>
+      ) : (
+        <Grid item xs={12}>
+          {props.data.user_bidpoint} ポイントで応募中
+        </Grid>
+      )}
+    </Grid>
+    </Box>
+  );
+};
 const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
@@ -209,10 +285,7 @@ const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
       });
   };
   return (
-    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid item xs={12}></Grid>
-      <Button type="submit">参加する</Button>
-    </Box>
+    <LackBidDetail data={props.data} onSubmit={handleSubmit}/>
   );
 };
 
@@ -234,10 +307,7 @@ const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
       });
   };
   return (
-    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid item xs={12}></Grid>
-      <Button type="submit">参加する</Button>
-    </Box>
+    <LackBidDetail data={props.data} onSubmit={handleSubmit}/>
   );
 };
 
@@ -263,7 +333,14 @@ const ConvertModalField: React.FC<BidderModalProps> = (
 
   return (
     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid item xs={12}></Grid>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          仕事:{props.data.name}
+        </Grid>
+        <Grid item xs={12}>
+          貰えるポイント:{props.data.point}
+        </Grid>
+      </Grid>
       <Button type="submit">交代する</Button>
     </Box>
   );
@@ -289,244 +366,16 @@ const CheckWorkModalField: React.FC<ResponseCardProps<SlotResponse>> = (
 
   return (
     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid item xs={12}></Grid>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>仕事:{props.data.name}</Grid>
+      </Grid>
       <Button type="submit">仕事をしました</Button>
     </Box>
   );
 };
 
-const SlotModalField: React.FC<ResponseCardProps<SlotResponse>> = (
-  props: ResponseCardProps<SlotResponse>
-) => {
-  const { showSnackbar } = useSnackbar();
-  const start_time_string = `${props.data.start_time.year}-${props.data.start_time.month}-${props.data.start_time.day}`;
-  const end_time_string = `${props.data.end_time.year}-${props.data.end_time.month}-${props.data.end_time.day}`;
-  const [starttime, setStarttime] = React.useState<Dayjs | null>(
-    dayjs(start_time_string)
-  );
-  const [endtime, setEndtime] = React.useState<Dayjs | null>(
-    dayjs(end_time_string)
-  );
-  const [id, setID] = React.useState<string>(props.data.task.id);
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    axios
-      .patch(`/slots/${props.data.id}`, {
-        name: data.get("name"),
-        start_time: {
-          year: starttime ? starttime.get("year") : props.data.start_time.year,
-          month: starttime
-            ? starttime.get("month") + 1
-            : props.data.start_time.month,
-          day: starttime ? starttime.get("day") : props.data.start_time.day,
-          hour: starttime ? starttime.get("hour") : props.data.start_time.hour,
-          minute: starttime
-            ? starttime.get("minute")
-            : props.data.start_time.minute,
-        },
-        end_time: {
-          year: endtime ? endtime.get("year") : props.data.end_time.year,
-          month: endtime ? endtime.get("month") + 1 : props.data.end_time.month,
-          day: endtime ? endtime.get("day") : props.data.end_time.day,
-          hour: endtime ? endtime.get("hour") : props.data.end_time.hour,
-          minute: endtime ? endtime.get("minute") : props.data.end_time.minute,
-        },
-        task: id,
-      })
-      .then((response) => {
-        console.log(response);
-        showSnackbar("更新成功", "success");
-      })
-      .catch((err) => {
-        showSnackbar("更新失敗", "error");
-        console.log(err);
-      });
-  };
-  return (
-    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            autoComplete="given-name"
-            name="name"
-            required
-            fullWidth
-            id="name"
-            label="名前"
-            defaultValue={props.data.name}
-            autoFocus
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <DateSelect
-            title="集合時刻"
-            date={starttime}
-            setValue={setStarttime}
-            setOther={{ setOther: setEndtime, timedelta: 1, unit: "h" }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <DateSelect
-            title="終了予定時刻"
-            date={endtime}
-            setValue={setEndtime}
-          />
-        </Grid>
-        <Grid>
-          <SingleChoiceField
-            url="/tasks/"
-            title="タスク"
-            id={id}
-            setData={setID}
-          />
-        </Grid>
-      </Grid>
-      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-        情報を更新
-      </Button>
-    </Box>
-  );
-};
-
-const TaskModalField: React.FC<ResponseCardProps<TaskResponse>> = (
-  props: ResponseCardProps<TaskResponse>
-) => {
-  const { showSnackbar } = useSnackbar();
-  const [tag_id, setTagID] = React.useState<string[]>([]);
-  const [auth_id, setAuthID] = React.useState<string[]>([]);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
-    axios
-      .patch(`/tasks/${props.data.id}`, {
-        name: data.get("name"),
-        detail: data.get("detail"),
-        max_woker_num: data.get("max_woker_num"),
-        min_woker_num: data.get("min_woker_num"),
-        exp_woker_num: data.get("exp_woker_num"),
-        start_point: data.get("start_point"),
-        buyout_point: data.get("buyout_point"),
-        tag: tag_id,
-        authority: auth_id,
-      })
-      .then((response) => {
-        console.log(response);
-        showSnackbar("更新成功", "success");
-      })
-      .catch((err) => {
-        showSnackbar("更新失敗", "error");
-        console.log(err);
-      });
-  };
-  return (
-    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            autoComplete="given-name"
-            name="name"
-            required
-            fullWidth
-            id="name"
-            defaultValue={props.data.name}
-            label="名前"
-            autoFocus
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            name="detail"
-            maxRows={10}
-            required
-            id="detail"
-            label="説明"
-            fullWidth
-            margin="normal"
-            multiline
-            variant="outlined"
-            placeholder="400字以内"
-            defaultValue={props.data.detail}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="max_woker_num"
-            name="max_woker_num"
-            inputProps={{ min: "1", step: "1" }}
-            label="最大人数"
-            defaultValue={props.data.max_worker_num}
-            type="number"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="min_woker_num"
-            name="min_woker_num"
-            inputProps={{ min: "1", step: "1" }}
-            label="最小人数"
-            defaultValue={props.data.min_worker_num}
-            type="number"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="exp_woker_num"
-            name="exp_woker_num"
-            inputProps={{ min: "0", step: "1" }}
-            label="必要な経験者の人数"
-            defaultValue={props.data.exp_worker_num}
-            type="number"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="start_point"
-            name="start_point"
-            inputProps={{ min: "1", step: "1" }}
-            label="開始ポイント"
-            defaultValue="10"
-            type="number"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="buyout_point"
-            name="buyout_point"
-            inputProps={{ min: "0", step: "1" }}
-            label="即決価格"
-            defaultValue="0"
-            type="number"
-          />
-        </Grid>
-        <Grid>
-          <SimpleChoiceField
-            url="/tags"
-            title="タグ"
-            id={tag_id}
-            setData={setTagID}
-          />
-        </Grid>
-        <Grid>
-          <SimpleChoiceField
-            url="/authority"
-            title="権限"
-            id={auth_id}
-            setData={setAuthID}
-          />
-        </Grid>
-      </Grid>
-      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-        新規作成
-      </Button>
-    </Box>
-  );
-};
-
-export const ResponseDisplay: React.FC<ResponseDisplayProps> = (
-  props: ResponseDisplayProps
+export const ResponseListDisplay: React.FC<ResponseListDisplayProps> = (
+  props: ResponseListDisplayProps
 ) => {
   const value = React.useContext(TabContext);
   if (value === 0 && isSlot(props.data)) {

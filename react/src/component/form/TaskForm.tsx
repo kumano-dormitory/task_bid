@@ -92,6 +92,7 @@ export const TaskForm = () => {
                   multiline
                   variant="outlined"
                   placeholder="400字以内"
+                  inputProps={{maxLength:400}}
                 />
               </Grid>
               <Grid item xs={12}>

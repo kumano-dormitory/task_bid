@@ -47,7 +47,7 @@ def post(bid: BidRequest, db: Session, user: User):
             bid.close_time.hour,
             bid.close_time.minute,
         ),
-        slot_id=bid.slot,
+        slot_id=bid.slot_id,
     )
     db.add(new_bid)
     db.commit()
@@ -72,7 +72,7 @@ def post_personal(bid: BidRequest, db: Session, user: User):
             bid.close_time.hour,
             bid.close_time.minute,
         ),
-        slot_id=bid.slot,
+        slot_id=bid.slot_id,
     )
     db.add(new_bid)
     user.point -= new_bid.slot.task.buyout_point
@@ -99,13 +99,14 @@ def user_bidable(user: User, db: Session):
     opening_bids = (
         db.execute(
             select(Bid).filter(
-                Bid.open_time < datetime.datetime.now(),
+                Bid.open_time<datetime.datetime.now(),
                 Bid.close_time > datetime.datetime.now(),
             )
         )
         .scalars()
         .all()
     )
+    all_bid=db.scalars(select(Bid)).all()
     return bids_response_for_user(opening_bids, user, db)
 
 
@@ -135,8 +136,8 @@ def lack(user: User, db: Session):
             continue
 
     return {
-        "lack_bids": bids_response(lack_bids),
-        "lack_exp_bids": bids_response(lack_exp_bids),
+        "lack_bids": bids_response_for_user(lack_bids,user,db),
+        "lack_exp_bids": bids_response_for_user(lack_exp_bids,user,db),
     }
 
 
@@ -227,7 +228,7 @@ def close(bid_id: str, db: Session):
     if blank_len > not_exp_bidders_len + max(
         (exp_bidders_len - task.exp_woker_num, 0)
     ):
-        message.alert_shortage()
+        message.alert_shortage(slot)
         for exp_bidder in exp_bidders:
             slot.assignees.append(exp_bidder.user)
         for not_exp in inexp_bidders:
@@ -236,7 +237,7 @@ def close(bid_id: str, db: Session):
         return slot_response(slot)
 
     if exp_bidders_len < task.exp_woker_num:
-        message.alert_exp_shortage()
+        message.alert_exp_shortage(slot)
         for exp_bidder in exp_bidders:
             slot.assignees.append(exp_bidder.user)
         for index in range(

@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import axios from "../../axios";
 import { useState } from "react";
+import { SimpleChoiceField } from "../field/SimpleChoiceField";
 const theme = createTheme();
 
 export const blocks = ["A1", "A2", "A3", "A4", "B12", "B3", "B4", "C12", "C34"];
@@ -21,6 +22,7 @@ export const blocks = ["A1", "A2", "A3", "A4", "B12", "B3", "B4", "C12", "C34"];
 export const Register = () => {
   const navigate = useNavigate();
   const [isMatch, setMatch] = useState(false);
+  const [exp_task, setExpTask] = useState<string[]>([]);
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -34,6 +36,7 @@ export const Register = () => {
         password: data.get("password"),
         block: data.get("block"),
         room_number: data.get("room_number"),
+        exp_task: exp_task,
       })
       .then((response) => {
         console.log(response);
@@ -130,6 +133,14 @@ export const Register = () => {
                   helperText={isMatch ? "Password not match" : ""}
                 />
               </Grid>
+              <Grid item xs={12}>
+                <SimpleChoiceField
+                  url="/tasks/"
+                  title="経験したことのあるタスク"
+                  id={exp_task}
+                  setData={setExpTask}
+                />
+              </Grid>
             </Grid>
             <Button
               type="submit"
@@ -137,7 +148,7 @@ export const Register = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign Up
+              登録完了
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>

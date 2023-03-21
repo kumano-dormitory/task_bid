@@ -47,7 +47,7 @@ export const SlotForm = () => {
           hour: endtime.get("hour"),
           minute: endtime.get("minute"),
         },
-        task: task_id,
+        task_id: task_id,
       })
       .then((response) => {
         console.log(response);

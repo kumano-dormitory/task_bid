@@ -52,12 +52,12 @@ export const BidForm: React.FC = () => {
           hour: closetime.get("hour"),
           minute: closetime.get("minute"),
         },
-        slot: slot.slot_id,
+        slot_id: slot.slot_id,
         
       })
       .then((response) => {
         console.log(response);
-        navigate("/login");
+        navigate("/bidpage");
       })
       .catch((err) => {
         console.log(err);

@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app.models.models import User
-from app.schemas.users import UserBase, UserDisplay, AddUserTask
+from app.schemas.users import UserBase, UserDisplay, AddUserTask,UserUpdate
 from app.router.auth import Token
 from app.cruds.auth import oauth2_scheme, get_current_active_user
 from typing import Union
@@ -62,6 +62,10 @@ async def user_createtask(
     tasks = crud.slots(user_id, db)
     return tasks
 
+@router.patch('/{user_id}')
+async def user_patch(user_id:str,request:UserUpdate, db:Session=Depends(get_db)):
+    user=crud.patch(user_id,request,db)
+    return user
 
 @router.delete("/", status_code=200)
 async def user_delete(name: str, db: Session = Depends(get_db)):
