@@ -85,7 +85,7 @@ export const BidPage: React.FC = () => {
           <DataList url="/bids/?lack_exp=True" />
         </TabPanel>
         <TabPanel value={value} index={5}>
-          <DataList url={"/users/" + user.id + "/slots/?end=True"} />
+          <DataList url={`/users/${user.id}/slots/?end=True`} />
         </TabPanel>
         <TabPanel value={value} index={6}>
           <AdminPage />
