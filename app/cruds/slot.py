@@ -147,7 +147,7 @@ def reassign(slot_id: str, user_id: str, db: Session):
     return slot
 
 
-def complete(slot_id: str, user: User, db: Session):
+def complete(slot_id: str,done:bool, user: User, db: Session):
     slot = db.get(Slot, slot_id)
     if slot.start_time > datetime.datetime.now():
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
@@ -161,10 +161,12 @@ def complete(slot_id: str, user: User, db: Session):
         .limit(1)
     ).first()
     slot.assignees.remove(user)
-    user.exp_task.append(slot.task)
-    user.point += bidder.point
+    if done:
+        user.exp_task.append(slot.task)
+        user.point += bidder.point
     db.commit()
     return user_response(user)
+
 
 
 def bulk_delete(slots_id: list[str], db: Session):

@@ -76,11 +76,12 @@ async def slot_reassign(
 
 @router.post("/{slot_id}/complete")
 async def slot_complete(
-    slot_id: str,
+    slot_id: str,    
+    done:bool=True,
     user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    response = crud.complete(slot_id, user, db)
+    response = crud.complete(slot_id,done,user, db)
     return response
 
 @router.patch('/{slot_id}')

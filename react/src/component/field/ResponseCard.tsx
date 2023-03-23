@@ -20,15 +20,15 @@ import { TabContext } from "../RecruitPage";
 import axios from "../../axios";
 import { useSnackbar } from "../Snackbar";
 import { ModalBase } from "../modal/ModalBase";
-import { useSWRConfig} from "swr";
+import { useSWRConfig } from "swr";
 export type ResponseCardProps<T extends ResponseBase> = {
   data: T;
 };
 
 type LackBidDetailProps = {
   data: BidResponse;
-  onSubmit:(event: React.FormEvent<HTMLFormElement>) => void
-}
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+};
 
 type ResponseListDisplayProps = {
   data: BidResponse | SlotResponse | TaskResponse | BidderResponse;
@@ -87,7 +87,6 @@ export const ResponseCard: React.FC<
     </Card>
   );
 };
-
 
 const AssignModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   props: ResponseCardProps<SlotResponse>
@@ -154,7 +153,6 @@ const AssignModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   );
 };
 
-
 const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
   props: ResponseCardProps<BidResponse>
 ) => {
@@ -196,25 +194,25 @@ const TenderModalField: React.FC<ResponseCardProps<BidResponse>> = (
     <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-        {props.data.name}
-      </Grid>
-      <Grid item xs={12}>
-        勤務時間:{noYeardatetimeParse(props.data.slot.start_time)}~
-        {noYeardatetimeParse(props.data.slot.end_time)}
-      </Grid>
-      <Grid item xs={12}>
-        応募締切{datetimeParse(props.data.close_time)}まで
-      </Grid>
-      <Grid item xs={12}>
-        貰えるポイント:{props.data.buyout_point}~{props.data.start_point}
-      </Grid>
-      {props.data.user_bidpoint === "notyet" ? (
-        <></>
-      ) : (
-        <Grid item xs={12}>
-          {props.data.user_bidpoint}ポイントで応募中
+          {props.data.name}
         </Grid>
-      )}
+        <Grid item xs={12}>
+          勤務時間:{noYeardatetimeParse(props.data.slot.start_time)}~
+          {noYeardatetimeParse(props.data.slot.end_time)}
+        </Grid>
+        <Grid item xs={12}>
+          応募締切{datetimeParse(props.data.close_time)}まで
+        </Grid>
+        <Grid item xs={12}>
+          貰えるポイント:{props.data.buyout_point}~{props.data.start_point}
+        </Grid>
+        {props.data.user_bidpoint === "notyet" ? (
+          <></>
+        ) : (
+          <Grid item xs={12}>
+            {props.data.user_bidpoint}ポイントで応募中
+          </Grid>
+        )}
         <Grid item xs={12}>
           <TextField
             id="tender_point"
@@ -239,31 +237,31 @@ const LackBidDetail: React.FC<LackBidDetailProps> = (
 ) => {
   return (
     <Box component="form" noValidate onSubmit={props.onSubmit} sx={{ mt: 3 }}>
-        <Grid container spacing={2}>
-      <Grid item xs={12}>
-        {props.data.name}
-      </Grid>
-      <Grid item xs={12}>
-        勤務時間:{noYeardatetimeParse(props.data.slot.start_time)}~
-        {noYeardatetimeParse(props.data.slot.end_time)}
-      </Grid>
-      <Grid item xs={12}>
-        貰えるポイント:{props.data.buyout_point - 1}
-      </Grid>
-      <Grid item xs={12}>
-        参加者:
-        {props.data.slot.assignees.map((user) => (
-          <> {user.name}</>
-        ))}
-      </Grid>
-      {props.data.user_bidpoint === "notyet" ? (
-        <Button type="submit">参加する</Button>
-      ) : (
+      <Grid container spacing={2}>
         <Grid item xs={12}>
-          {props.data.user_bidpoint} ポイントで応募中
+          {props.data.name}
         </Grid>
-      )}
-    </Grid>
+        <Grid item xs={12}>
+          勤務時間:{noYeardatetimeParse(props.data.slot.start_time)}~
+          {noYeardatetimeParse(props.data.slot.end_time)}
+        </Grid>
+        <Grid item xs={12}>
+          貰えるポイント:{props.data.buyout_point - 1}
+        </Grid>
+        <Grid item xs={12}>
+          参加者:
+          {props.data.slot.assignees.map((user) => (
+            <> {user.name}</>
+          ))}
+        </Grid>
+        {props.data.user_bidpoint === "notyet" ? (
+          <Button type="submit">参加する</Button>
+        ) : (
+          <Grid item xs={12}>
+            {props.data.user_bidpoint} ポイントで応募中
+          </Grid>
+        )}
+      </Grid>
     </Box>
   );
 };
@@ -284,9 +282,7 @@ const LackModalField: React.FC<ResponseCardProps<BidResponse>> = (
         console.log(err);
       });
   };
-  return (
-    <LackBidDetail data={props.data} onSubmit={handleSubmit}/>
-  );
+  return <LackBidDetail data={props.data} onSubmit={handleSubmit} />;
 };
 
 const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
@@ -306,9 +302,7 @@ const LackExpModalField: React.FC<ResponseCardProps<BidResponse>> = (
         console.log(err);
       });
   };
-  return (
-    <LackBidDetail data={props.data} onSubmit={handleSubmit}/>
-  );
+  return <LackBidDetail data={props.data} onSubmit={handleSubmit} />;
 };
 
 const ConvertModalField: React.FC<BidderModalProps> = (
@@ -350,10 +344,11 @@ const CheckWorkModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   props: ResponseCardProps<SlotResponse>
 ) => {
   const { showSnackbar } = useSnackbar();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>,done:boolean) => {
     event.preventDefault();
     axios
-      .post(`/slots/${props.data.id}/complete`)
+      .post(`/slots/${props.data.id}/complete/?done=${done}`)
       .then((response) => {
         showSnackbar("更新成功", "success");
         console.log(response);
@@ -365,12 +360,19 @@ const CheckWorkModalField: React.FC<ResponseCardProps<SlotResponse>> = (
   };
 
   return (
-    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>仕事:{props.data.name}</Grid>
-      </Grid>
-      <Button type="submit">仕事をしました</Button>
-    </Box>
+    <>
+      <Box component="form" noValidate onSubmit={(event)=>{handleSubmit(event,true)}} sx={{ mt: 3 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            仕事:{props.data.name}
+          </Grid>
+        </Grid>
+        <Button type="submit">仕事をしました</Button>
+      </Box>
+      <Box component="form" noValidate onSubmit={(event)=>{handleSubmit(event,false)}} sx={{ mt: 3 }}>
+        <Button type="submit">仕事をしていません</Button>
+      </Box>
+    </>
   );
 };
 
